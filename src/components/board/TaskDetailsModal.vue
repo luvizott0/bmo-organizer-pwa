@@ -56,6 +56,14 @@
             >
               Desenvolvimento Manual
             </span>
+
+            <span
+              v-if="task.target_scope && task.target_scope !== 'auto'"
+              class="font-mono text-xs font-bold px-2 py-0.5 rounded-xs border uppercase flex items-center gap-1"
+              :class="task.target_scope === 'backend' ? 'bg-[#eff6ff] text-[#1d4ed8] border-[#bfdbfe]' : (task.target_scope === 'frontend' ? 'bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]' : 'bg-[#faf5ff] text-[#7e22ce] border-[#e9d5ff]')"
+            >
+              {{ task.target_scope === 'fullstack' ? '🌐 FULLSTACK' : (task.target_scope === 'backend' ? '⚙️ BACKEND (API)' : '💻 FRONTEND (UI)') }}
+            </span>
           </div>
 
           <h2 class="text-base font-bold text-[#422d16] font-mono leading-snug">
@@ -78,11 +86,19 @@
 
         <!-- Technical Metadata -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
-          <!-- Project & GitHub Repo -->
-          <div class="p-2.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5] space-y-1">
-            <span class="text-[10px] text-[#847062] block font-bold">REPOSITÓRIO GITHUB</span>
+          <!-- Project & Repositories -->
+          <div class="p-2.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5] space-y-1.5">
+            <span class="text-[10px] text-[#847062] block font-bold">REPOSITÓRIOS VINCULADOS</span>
+            <div v-if="task.project?.backend_repo" class="text-[11px] truncate flex items-center gap-1">
+              <span class="px-1 py-0.2 bg-[#2563eb]/10 text-[#2563eb] font-bold rounded-2xs text-[9px]">API</span>
+              <span class="truncate text-[#5f4120]">{{ task.project.backend_repo }}</span>
+            </div>
+            <div v-if="task.project?.frontend_repo" class="text-[11px] truncate flex items-center gap-1">
+              <span class="px-1 py-0.2 bg-[#16a34a]/10 text-[#16a34a] font-bold rounded-2xs text-[9px]">PWA</span>
+              <span class="truncate text-[#5f4120]">{{ task.project.frontend_repo }}</span>
+            </div>
             <a
-              v-if="task.project?.github_repo"
+              v-if="!task.project?.backend_repo && !task.project?.frontend_repo && task.project?.github_repo"
               :href="`https://github.com/${task.project.github_repo}`"
               target="_blank"
               class="text-[#a66130] hover:underline flex items-center gap-1 font-bold truncate"
@@ -91,12 +107,11 @@
               <span class="truncate">{{ task.project.github_repo }}</span>
               <ExternalLink class="w-3 h-3 shrink-0" />
             </a>
-            <span v-else class="text-[#847062] italic">Não vinculado</span>
           </div>
 
-          <!-- Git Branch -->
+          <!-- Git Branches -->
           <div class="p-2.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5] space-y-1">
-            <span class="text-[10px] text-[#847062] block font-bold">BRANCH GIT</span>
+            <span class="text-[10px] text-[#847062] block font-bold">BRANCHES GIT</span>
             <div class="flex items-center justify-between gap-1">
               <span class="truncate text-[#5f4120] font-bold text-[11px]">
                 {{ task.branch_name || 'feat/' + task.task_code }}

@@ -3,7 +3,7 @@
     <AppHeader>
       <template #actions>
         <button
-          @click="isModalOpen = true"
+          @click="openCreateModal"
           class="retro-button"
         >
           <Plus class="w-3.5 h-3.5" />
@@ -17,7 +17,7 @@
         <div>
           <h2 class="section-marker text-lg mb-1">PROJETOS & REPOSITÓRIOS</h2>
           <p class="text-xs text-[#847062] font-sans">
-            Cada projeto possui uma sigla única (ex: <span class="font-mono font-bold text-[#a66130]">CST-001</span>) e configurações para o Agente de IA do Homelab BMO.
+            Cada projeto possui uma sigla única (ex: <span class="font-mono font-bold text-[#a66130]">CST-001</span>) e pode vincular repositórios Frontend, Backend ou ambos para o Agente de IA do BMO.
           </p>
         </div>
 
@@ -31,13 +31,29 @@
             <div>
               <!-- Retro Card Header -->
               <div class="retro-card-header flex items-center justify-between" :style="{ backgroundColor: project.color || '#a66130' }">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 truncate">
                   <span>[{{ project.prefix }}]</span>
                   <span class="truncate">{{ project.name }}</span>
                 </div>
-                <span class="text-[10px] opacity-90">
-                  {{ project.tasks_count ?? 0 }} TAREFAS
-                </span>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span class="text-[10px] opacity-90 mr-1">
+                    {{ project.tasks_count ?? 0 }} TAREFAS
+                  </span>
+                  <button
+                    @click.stop="openEditModal(project)"
+                    title="Editar Projeto"
+                    class="p-1 hover:bg-white/20 rounded-xs transition-colors cursor-pointer text-white"
+                  >
+                    <Pencil class="w-3 h-3" />
+                  </button>
+                  <button
+                    @click.stop="confirmDelete(project)"
+                    title="Excluir Projeto"
+                    class="p-1 hover:bg-red-500/30 rounded-xs transition-colors cursor-pointer text-white"
+                  >
+                    <Trash2 class="w-3 h-3" />
+                  </button>
+                </div>
               </div>
 
               <!-- Body -->
@@ -46,17 +62,32 @@
                   {{ project.description }}
                 </p>
 
-                <!-- Details -->
+                <!-- Repositories Badge List -->
                 <div class="space-y-1.5 text-xs font-mono text-[#5f4120]">
-                  <div v-if="project.github_repo" class="flex items-center gap-1.5 truncate p-1.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5]">
+                  <!-- Backend Repo -->
+                  <div v-if="project.backend_repo" class="flex items-center gap-1.5 truncate p-1.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5]">
+                    <Server class="w-3.5 h-3.5 text-[#2563eb] shrink-0" />
+                    <span class="text-[10px] font-bold px-1 py-0.2 bg-[#2563eb]/10 text-[#2563eb] rounded-2xs">API</span>
+                    <span class="truncate text-[11px]">{{ project.backend_repo }}</span>
+                  </div>
+
+                  <!-- Frontend Repo -->
+                  <div v-if="project.frontend_repo" class="flex items-center gap-1.5 truncate p-1.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5]">
+                    <Layout class="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
+                    <span class="text-[10px] font-bold px-1 py-0.2 bg-[#16a34a]/10 text-[#16a34a] rounded-2xs">PWA</span>
+                    <span class="truncate text-[11px]">{{ project.frontend_repo }}</span>
+                  </div>
+
+                  <!-- Fallback Legacy GitHub Repo -->
+                  <div v-if="!project.backend_repo && !project.frontend_repo && project.github_repo" class="flex items-center gap-1.5 truncate p-1.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5]">
                     <Github class="w-3.5 h-3.5 text-[#a66130] shrink-0" />
                     <span class="truncate text-[11px]">{{ project.github_repo }}</span>
                   </div>
 
-                  <div class="flex items-center gap-1.5 text-[10px] text-[#847062] pt-1">
+                  <div class="flex flex-wrap items-center gap-1.5 text-[10px] text-[#847062] pt-1">
                     <span class="px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5]">Base: {{ project.base_branch || 'develop' }}</span>
-                    <span v-if="project.test_command" class="px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5] truncate">
-                      {{ project.test_command }}
+                    <span v-if="project.frontend_test_cmd || project.test_command" class="px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5] truncate">
+                      {{ project.frontend_test_cmd || project.test_command }}
                     </span>
                   </div>
                 </div>
@@ -78,20 +109,20 @@
       </div>
     </div>
 
-    <!-- Modal: Cadastrar Projeto -->
+    <!-- Modal: Cadastrar / Editar Projeto -->
     <div
       v-if="isModalOpen"
       class="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4 overflow-y-auto"
     >
-      <div class="w-full max-w-lg retro-card shadow-lg p-0 text-[#333333] bg-white my-6">
-        <div class="retro-card-header flex items-center justify-between">
-          <span>CADASTRAR NOVO PROJETO</span>
+      <div class="w-full max-w-xl retro-card shadow-lg p-0 text-[#333333] bg-white my-6">
+        <div class="retro-card-header flex items-center justify-between" :style="{ backgroundColor: form.color || '#a66130' }">
+          <span>{{ editingProjectId ? 'EDITAR PROJETO' : 'CADASTRAR NOVO PROJETO' }}</span>
           <button @click="isModalOpen = false" class="text-white/80 hover:text-white cursor-pointer font-mono font-bold">
             [X]
           </button>
         </div>
 
-        <form @submit.prevent="handleCreateProject" class="p-5 space-y-4 font-sans">
+        <form @submit.prevent="handleSaveProject" class="p-5 space-y-4 font-sans max-h-[85vh] overflow-y-auto">
           <!-- Error alert -->
           <div
             v-if="submitError"
@@ -105,7 +136,6 @@
           <div class="grid grid-cols-3 gap-3">
             <div class="col-span-2">
               <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» NOME DO PROJETO</label>
-
               <input
                 v-model="form.name"
                 type="text"
@@ -124,49 +154,119 @@
                 type="text"
                 required
                 maxlength="6"
+                :disabled="Boolean(editingProjectId)"
                 placeholder="Ex: CST"
-                class="retro-input font-mono uppercase font-bold text-[#a66130]"
+                class="retro-input font-mono uppercase font-bold text-[#a66130] disabled:opacity-60 disabled:bg-gray-100"
               />
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» REPOSITÓRIO GITHUB</label>
-              <input
-                v-model="form.github_repo"
-                type="text"
-                placeholder="Ex: luvizott0/capyshowtime-pwa"
-                class="retro-input font-mono"
-              />
+          <div>
+            <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» COR DO TEMA</label>
+            <div class="flex items-center gap-1.5 pt-1">
+              <button
+                v-for="c in ['#a66130', '#7d5628', '#b07a3b', '#16a34a', '#dc2626', '#2563eb', '#847062']"
+                :key="c"
+                type="button"
+                @click="form.color = c"
+                class="w-6 h-6 rounded-xs border-2 transition-transform cursor-pointer"
+                :style="{ backgroundColor: c }"
+                :class="form.color === c ? 'scale-110 border-[#333333]' : 'border-white'"
+              ></button>
             </div>
+          </div>
 
-            <div>
-              <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» COR DO TEMA</label>
-              <div class="flex items-center gap-1.5 pt-1">
-                <button
-                  v-for="c in ['#a66130', '#7d5628', '#b07a3b', '#16a34a', '#dc2626', '#2563eb', '#847062']"
-                  :key="c"
-                  type="button"
-                  @click="form.color = c"
-                  class="w-6 h-6 rounded-xs border-2 transition-transform cursor-pointer"
-                  :style="{ backgroundColor: c }"
-                  :class="form.color === c ? 'scale-110 border-[#333333]' : 'border-white'"
-                ></button>
+          <!-- Section: Backend (API) Repository -->
+          <div class="p-3 bg-[#eff6ff] border border-[#bfdbfe] rounded-xs space-y-2.5">
+            <h4 class="text-xs font-bold font-mono text-[#1e40af] flex items-center gap-1.5">
+              <Server class="w-3.5 h-3.5 text-[#2563eb]" />
+              REPOSITÓRIO BACKEND (API)
+            </h4>
+
+            <div class="space-y-2 font-mono">
+              <div>
+                <label class="block text-[10px] font-bold text-[#1e40af] mb-0.5">REPOSITÓRIO NO GITHUB</label>
+                <input
+                  v-model="form.backend_repo"
+                  type="text"
+                  placeholder="Ex: luvizott0/capihouse-api"
+                  class="retro-input text-xs"
+                />
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[10px] font-bold text-[#1e40af] mb-0.5">COMANDO DE TESTE API</label>
+                  <input
+                    v-model="form.backend_test_cmd"
+                    type="text"
+                    placeholder="php artisan test"
+                    class="retro-input text-xs"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-[#1e40af] mb-0.5">ARQUIVO DE REGRAS</label>
+                  <input
+                    v-model="form.backend_instructions_file"
+                    type="text"
+                    placeholder="AGENTS.md"
+                    class="retro-input text-xs"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Section: AI Context -->
-          <div class="p-3 bg-[#fdf8f3] border border-[#D8CDC5] rounded-xs space-y-2.5">
-            <h4 class="text-xs font-bold font-mono text-[#5f4120] flex items-center gap-1.5">
-              <Bot class="w-3.5 h-3.5 text-[#a66130]" />
-              CONTEXTO PARA AGENTE DE IA (BMO HOMELAB)
+          <!-- Section: Frontend (PWA / Web) Repository -->
+          <div class="p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-xs space-y-2.5">
+            <h4 class="text-xs font-bold font-mono text-[#166534] flex items-center gap-1.5">
+              <Layout class="w-3.5 h-3.5 text-[#16a34a]" />
+              REPOSITÓRIO FRONTEND (PWA / WEB)
             </h4>
 
-            <div class="grid grid-cols-2 gap-2 font-mono">
+            <div class="space-y-2 font-mono">
               <div>
-                <label class="block text-[10px] font-bold text-[#847062] mb-0.5">BRANCH BASE</label>
+                <label class="block text-[10px] font-bold text-[#166534] mb-0.5">REPOSITÓRIO NO GITHUB</label>
+                <input
+                  v-model="form.frontend_repo"
+                  type="text"
+                  placeholder="Ex: luvizott0/capyshowtime-pwa"
+                  class="retro-input text-xs"
+                />
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[10px] font-bold text-[#166534] mb-0.5">COMANDO DE TESTE/BUILD</label>
+                  <input
+                    v-model="form.frontend_test_cmd"
+                    type="text"
+                    placeholder="npm run build"
+                    class="retro-input text-xs"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-[#166534] mb-0.5">ARQUIVO DE REGRAS</label>
+                  <input
+                    v-model="form.frontend_instructions_file"
+                    type="text"
+                    placeholder="AGENTS.md"
+                    class="retro-input text-xs"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Base Branch & General Settings -->
+          <div class="p-3 bg-[#fdf8f3] border border-[#D8CDC5] rounded-xs space-y-2.5 font-mono">
+            <h4 class="text-xs font-bold text-[#5f4120] flex items-center gap-1.5">
+              <Bot class="w-3.5 h-3.5 text-[#a66130]" />
+              DIRETRIZES GERAIS DO PROJETO
+            </h4>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[10px] font-bold text-[#847062] mb-0.5">BRANCH BASE INTEGRAÇÃO</label>
                 <input
                   v-model="form.base_branch"
                   type="text"
@@ -174,13 +274,12 @@
                   class="retro-input text-xs"
                 />
               </div>
-
               <div>
-                <label class="block text-[10px] font-bold text-[#847062] mb-0.5">COMANDO DE TESTES</label>
+                <label class="block text-[10px] font-bold text-[#847062] mb-0.5">REPO ÚNICO / LEGADO (OPCIONAL)</label>
                 <input
-                  v-model="form.test_command"
+                  v-model="form.github_repo"
                   type="text"
-                  placeholder="npm run test"
+                  placeholder="Caso seja repo único"
                   class="retro-input text-xs"
                 />
               </div>
@@ -214,7 +313,7 @@
               :disabled="isSubmitting"
               class="retro-button disabled:opacity-60"
             >
-              {{ isSubmitting ? 'CRIANDO...' : 'CRIAR PROJETO' }}
+              {{ isSubmitting ? 'SALVANDO...' : (editingProjectId ? 'SALVAR ALTERAÇÕES' : 'CRIAR PROJETO') }}
             </button>
           </div>
         </form>
@@ -227,13 +326,15 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectsStore } from '@/stores/projects'
+import type { Project } from '@/types'
 import AppHeader from '@/components/layout/AppHeader.vue'
-import { Plus, Github, Bot, AlertCircle } from 'lucide-vue-next'
+import { Plus, Github, Server, Layout, Bot, AlertCircle, Pencil, Trash2 } from 'lucide-vue-next'
 
 const projectsStore = useProjectsStore()
 const router = useRouter()
 
 const isModalOpen = ref(false)
+const editingProjectId = ref<number | null>(null)
 const isSubmitting = ref(false)
 const submitError = ref<string | null>(null)
 
@@ -241,8 +342,14 @@ const form = ref({
   name: '',
   prefix: '',
   github_repo: '',
+  backend_repo: '',
+  backend_test_cmd: 'php artisan test',
+  backend_instructions_file: 'AGENTS.md',
+  frontend_repo: '',
+  frontend_test_cmd: 'npm run build',
+  frontend_instructions_file: 'AGENTS.md',
   base_branch: 'develop',
-  test_command: 'npm run test',
+  test_command: 'npm run build',
   description: '',
   color: '#a66130',
 })
@@ -252,39 +359,96 @@ function openBoard(projectId: number) {
   router.push('/board')
 }
 
-async function handleCreateProject() {
+function openCreateModal() {
+  editingProjectId.value = null
+  submitError.value = null
+  form.value = {
+    name: '',
+    prefix: '',
+    github_repo: '',
+    backend_repo: '',
+    backend_test_cmd: 'php artisan test',
+    backend_instructions_file: 'AGENTS.md',
+    frontend_repo: '',
+    frontend_test_cmd: 'npm run build',
+    frontend_instructions_file: 'AGENTS.md',
+    base_branch: 'develop',
+    test_command: 'npm run build',
+    description: '',
+    color: '#a66130',
+  }
+  isModalOpen.value = true
+}
+
+function openEditModal(project: Project) {
+  editingProjectId.value = project.id
+  submitError.value = null
+  form.value = {
+    name: project.name,
+    prefix: project.prefix,
+    github_repo: project.github_repo || '',
+    backend_repo: project.backend_repo || '',
+    backend_test_cmd: project.backend_test_cmd || 'php artisan test',
+    backend_instructions_file: project.backend_instructions_file || 'AGENTS.md',
+    frontend_repo: project.frontend_repo || '',
+    frontend_test_cmd: project.frontend_test_cmd || 'npm run build',
+    frontend_instructions_file: project.frontend_instructions_file || 'AGENTS.md',
+    base_branch: project.base_branch || 'develop',
+    test_command: project.test_command || 'npm run build',
+    description: project.description || '',
+    color: project.color || '#a66130',
+  }
+  isModalOpen.value = true
+}
+
+async function confirmDelete(project: Project) {
+  const confirmed = window.confirm(`Tem certeza que deseja excluir o projeto "${project.name}" ([${project.prefix}])? Todas as tarefas associadas serão excluídas.`)
+  if (!confirmed) return
+
+  try {
+    await projectsStore.deleteProject(project.id)
+  } catch (err: any) {
+    console.error('Error deleting project:', err)
+    alert(err.response?.data?.message || 'Erro ao excluir projeto.')
+  }
+}
+
+async function handleSaveProject() {
   submitError.value = null
   isSubmitting.value = true
   try {
-    await projectsStore.addProject({
+    const payload = {
       name: form.value.name,
       prefix: form.value.prefix.toUpperCase(),
-      github_repo: form.value.github_repo,
-      base_branch: form.value.base_branch,
-      test_command: form.value.test_command,
-      description: form.value.description,
+      github_repo: form.value.github_repo || null,
+      backend_repo: form.value.backend_repo || null,
+      backend_test_cmd: form.value.backend_test_cmd || null,
+      backend_instructions_file: form.value.backend_instructions_file || null,
+      frontend_repo: form.value.frontend_repo || null,
+      frontend_test_cmd: form.value.frontend_test_cmd || null,
+      frontend_instructions_file: form.value.frontend_instructions_file || null,
+      base_branch: form.value.base_branch || 'develop',
+      test_command: form.value.frontend_test_cmd || form.value.test_command || null,
+      description: form.value.description || null,
       color: form.value.color,
-    })
-    isModalOpen.value = false
-    form.value = {
-      name: '',
-      prefix: '',
-      github_repo: '',
-      base_branch: 'develop',
-      test_command: 'npm run test',
-      description: '',
-      color: '#a66130',
     }
+
+    if (editingProjectId.value) {
+      await projectsStore.updateProject(editingProjectId.value, payload)
+    } else {
+      await projectsStore.addProject(payload)
+    }
+
+    isModalOpen.value = false
   } catch (err: any) {
-    console.error('Error creating project:', err)
+    console.error('Error saving project:', err)
     submitError.value =
       err.response?.data?.message ||
       err.response?.data?.errors?.prefix?.[0] ||
       err.response?.data?.errors?.name?.[0] ||
-      'Erro ao criar projeto. Verifique os dados ou se você está autenticado.'
+      'Erro ao salvar projeto. Verifique os dados ou sua conexão.'
   } finally {
     isSubmitting.value = false
   }
 }
 </script>
-

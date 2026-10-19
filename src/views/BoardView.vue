@@ -85,6 +85,15 @@
                   DEV
                 </span>
 
+                <!-- Target Scope Badge -->
+                <span
+                  v-if="task.target_scope && task.target_scope !== 'auto'"
+                  class="font-mono text-[9px] font-bold px-1 py-0.5 rounded-2xs border uppercase"
+                  :class="task.target_scope === 'backend' ? 'bg-[#eff6ff] text-[#1d4ed8] border-[#bfdbfe]' : (task.target_scope === 'frontend' ? 'bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]' : 'bg-[#faf5ff] text-[#7e22ce] border-[#e9d5ff]')"
+                >
+                  {{ task.target_scope === 'fullstack' ? 'FULL' : (task.target_scope === 'backend' ? 'API' : 'UI') }}
+                </span>
+
                 <span
                   class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-xs uppercase border"
                   :class="priorityBadgeClass(task.priority)"

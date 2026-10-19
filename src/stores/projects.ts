@@ -72,6 +72,23 @@ export const useProjectsStore = defineStore('projects', () => {
     return created
   }
 
+  async function updateProject(id: number, payload: Partial<Project>) {
+    const updated = await projectsApi.update(id, payload)
+    const idx = projects.value.findIndex((p) => p.id === id)
+    if (idx !== -1) {
+      projects.value[idx] = updated
+    }
+    return updated
+  }
+
+  async function deleteProject(id: number) {
+    await projectsApi.delete(id)
+    projects.value = projects.value.filter((p) => p.id !== id)
+    if (selectedProjectId.value === id) {
+      selectedProjectId.value = projects.value[0]?.id ?? null
+    }
+  }
+
   async function addTask(payload: {
     project_id: number
     title: string
@@ -113,6 +130,8 @@ export const useProjectsStore = defineStore('projects', () => {
     loadProjects,
     loadTasks,
     addProject,
+    updateProject,
+    deleteProject,
     addTask,
     updateTaskStatus,
   }

@@ -9,6 +9,12 @@ export interface Project {
   prefix: string
   description?: string | null
   github_repo?: string | null
+  backend_repo?: string | null
+  backend_test_cmd?: string | null
+  backend_instructions_file?: string | null
+  frontend_repo?: string | null
+  frontend_test_cmd?: string | null
+  frontend_instructions_file?: string | null
   local_path?: string | null
   base_branch?: string
   test_command?: string | null
@@ -21,6 +27,8 @@ export interface Project {
   updated_at?: string
 }
 
+export type TargetScope = 'auto' | 'backend' | 'frontend' | 'fullstack'
+
 export interface Task {
   id: number
   workspace_id: number
@@ -31,7 +39,10 @@ export interface Task {
   description?: string | null
   status: TaskStatus
   priority: TaskPriority
+  target_scope?: TargetScope
   branch_name?: string | null
+  backend_branch_name?: string | null
+  frontend_branch_name?: string | null
   assignee_type: AssigneeType
   ai_logs?: any
   order: number
