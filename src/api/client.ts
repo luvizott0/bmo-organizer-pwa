@@ -25,7 +25,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isLoginRequest = error.config?.url?.includes('/auth/login')
+    if (error.response?.status === 401 && !isLoginRequest) {
       localStorage.removeItem('bmo_token')
       localStorage.removeItem('flux_auth_token')
       if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
@@ -35,6 +36,7 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
 
 
 export const projectsApi = {

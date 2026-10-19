@@ -95,11 +95,15 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useProjectsStore } from '@/stores/projects'
+import { useCalendarStore } from '@/stores/calendar'
 import { Boxes, Mail, Lock, LogIn, AlertCircle } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const projectsStore = useProjectsStore()
+const calendarStore = useCalendarStore()
 
 const email = ref('')
 const password = ref('')
@@ -117,6 +121,11 @@ async function handleLogin() {
 
   try {
     await authStore.login(email.value, password.value)
+    await Promise.allSettled([
+      projectsStore.loadProjects(),
+      projectsStore.loadTasks(),
+      calendarStore.loadReminders(),
+    ])
     const redirect = (route.query.redirect as string) || '/projects'
     router.push(redirect)
   } catch (err: any) {
@@ -130,3 +139,4 @@ async function handleLogin() {
   }
 }
 </script>
+
