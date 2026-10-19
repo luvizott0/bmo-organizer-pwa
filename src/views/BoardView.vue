@@ -158,7 +158,73 @@
                 [ ABRIR .BMO ↗ ]
               </a>
             </div>
+
+
+            <!-- Card Action Footer -->
+            <div class="mt-2.5 pt-2 border-t border-[#D8CDC5] flex items-center justify-between">
+              <!-- Backlog -> To Do -->
+              <template v-if="task.status === 'backlog'">
+                <span class="text-[10px] font-mono text-[#847062]">[BACKLOG]</span>
+                <button
+                  @click.stop="projectsStore.updateTaskStatus(task.id, 'todo')"
+                  class="retro-button-secondary text-[10px] py-1 px-2 border border-[#D8CDC5] bg-white hover:bg-[#e8c9a5] cursor-pointer"
+                  title="Mover para A Fazer"
+                >
+                  <span>PRIORIZAR ➔</span>
+                </button>
+              </template>
+
+              <!-- To Do -> In Progress -->
+              <template v-else-if="task.status === 'todo'">
+                <span class="text-[10px] font-mono text-[#847062]">[A FAZER]</span>
+                <button
+                  @click.stop="projectsStore.updateTaskStatus(task.id, 'in_progress')"
+                  class="retro-button text-[10px] py-1 px-2.5 flex items-center gap-1 cursor-pointer"
+                  :title="task.assignee_type === 'ai' ? 'Disparar Agente de IA para programar a tarefa' : 'Iniciar desenvolvimento manual'"
+                >
+                  <Play class="w-3 h-3 fill-current" />
+                  <span>{{ task.assignee_type === 'ai' ? 'INICIAR IA' : 'INICIAR' }}</span>
+                </button>
+              </template>
+
+              <!-- In Progress -> Review -->
+              <template v-else-if="task.status === 'in_progress'">
+                <span class="text-[10px] font-mono text-[#a66130] font-bold flex items-center gap-1">
+                  <Loader2 v-if="task.assignee_type === 'ai'" class="w-3 h-3 animate-spin" />
+                  <span>{{ task.assignee_type === 'ai' ? 'IA CODANDO...' : 'EM ANDAMENTO' }}</span>
+                </span>
+                <button
+                  @click.stop="projectsStore.updateTaskStatus(task.id, 'review')"
+                  class="retro-button-secondary text-[10px] py-1 px-2 border border-[#D8CDC5] bg-white hover:bg-[#e8c9a5] cursor-pointer"
+                  title="Mover para revisão no Sandbox"
+                >
+                  <span>CONCLUIR ➔</span>
+                </button>
+              </template>
+
+              <!-- Review -> Done -->
+              <template v-else-if="task.status === 'review'">
+                <span class="text-[10px] font-mono text-[#16a34a] font-bold">EM REVISÃO</span>
+                <button
+                  @click.stop="projectsStore.updateTaskStatus(task.id, 'done')"
+                  class="retro-button text-[10px] py-1 px-2.5 bg-[#16a34a] hover:bg-[#15803d] border-[#16a34a] flex items-center gap-1 cursor-pointer"
+                  title="Aprovar e realizar merge automático no GitHub"
+                >
+                  <Check class="w-3 h-3" />
+                  <span>VALIDAR & MERGE</span>
+                </button>
+              </template>
+
+              <!-- Done -->
+              <template v-else-if="task.status === 'done'">
+                <span class="text-[10px] font-mono text-[#16a34a] flex items-center gap-1">
+                  <CheckCircle2 class="w-3 h-3" />
+                  MERGE REALIZADO
+                </span>
+              </template>
+            </div>
           </div>
+
 
           <!-- Empty Column placeholder -->
           <div
@@ -276,7 +342,12 @@ import {
   Copy,
   Sparkles,
   FolderPlus,
+  Play,
+  Check,
+  CheckCircle2,
+  Loader2,
 } from 'lucide-vue-next'
+
 
 const projectsStore = useProjectsStore()
 
