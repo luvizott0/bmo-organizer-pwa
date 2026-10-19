@@ -446,8 +446,8 @@ async function loadAvailableTasks() {
   }
   try {
     const allTasks = await tasksApi.list({ project_id: form.value.project_id })
-    // Only show tasks that are ready (review or done or in_progress)
-    availableTasks.value = allTasks.filter(t => t.status === 'review' || t.status === 'done' || t.status === 'todo')
+    // Only show tasks that are ready (reviewed, done, review, or todo)
+    availableTasks.value = allTasks.filter(t => t.status === 'reviewed' || t.status === 'done' || t.status === 'review' || t.status === 'todo')
   } catch (err) {
     console.error('Erro ao buscar tarefas:', err)
   }

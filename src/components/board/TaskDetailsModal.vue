@@ -233,12 +233,21 @@
           <!-- When in Review -->
           <button
             v-if="task.status === 'review'"
-            @click="handleStatusChange('done')"
-            class="retro-button py-1.5 px-3.5 bg-[#16a34a] hover:bg-[#15803d] border-[#16a34a] text-white flex items-center gap-1.5"
+            @click="handleStatusChange('reviewed')"
+            class="retro-button py-1.5 px-3.5 bg-[#0284c7] hover:bg-[#0369a1] border-[#0284c7] text-white flex items-center gap-1.5 cursor-pointer"
           >
             <Check class="w-3.5 h-3.5" />
-            <span>VALIDAR & MERGE NO GITHUB</span>
+            <span>APROVAR & MOVER PARA REVISADO ➔</span>
           </button>
+
+          <!-- When in Reviewed -->
+          <div
+            v-if="task.status === 'reviewed'"
+            class="text-[#0284c7] flex items-center gap-1.5 font-bold"
+          >
+            <Loader2 class="w-3.5 h-3.5 animate-spin" />
+            <span>MERGEANDO NO DEVELOP...</span>
+          </div>
         </div>
       </div>
     </div>
@@ -325,6 +334,8 @@ function statusLabel(status: TaskStatus) {
       return 'Em Progresso'
     case 'review':
       return 'Em Revisão'
+    case 'reviewed':
+      return 'Revisado'
     case 'done':
       return 'Concluído'
   }
@@ -340,6 +351,8 @@ function statusBadgeClass(status: TaskStatus) {
       return 'bg-[#fffbeb] text-[#b07a3b] border-[#fde68a]'
     case 'review':
       return 'bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]'
+    case 'reviewed':
+      return 'bg-[#f0f9ff] text-[#0284c7] border-[#bae6fd]'
     case 'done':
       return 'bg-[#f0fdf4] text-[#16a34a] border-[#16a34a]'
   }

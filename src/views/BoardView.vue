@@ -205,24 +205,32 @@
                 </button>
               </template>
 
-              <!-- Review -> Done -->
+              <!-- Review -> Reviewed -->
               <template v-else-if="task.status === 'review'">
-                <span class="text-[10px] font-mono text-[#16a34a] font-bold">EM REVISÃO</span>
+                <span class="text-[10px] font-mono text-[#7d5628] font-bold">EM REVISÃO</span>
                 <button
-                  @click.stop="projectsStore.updateTaskStatus(task.id, 'done')"
-                  class="retro-button text-[10px] py-1 px-2.5 bg-[#16a34a] hover:bg-[#15803d] border-[#16a34a] flex items-center gap-1 cursor-pointer"
-                  title="Aprovar e realizar merge automático no GitHub"
+                  @click.stop="projectsStore.updateTaskStatus(task.id, 'reviewed')"
+                  class="retro-button text-[10px] py-1 px-2.5 bg-[#0284c7] hover:bg-[#0369a1] border-[#0284c7] text-white flex items-center gap-1 cursor-pointer"
+                  title="Marcar como revisado e disparar merge automático no develop"
                 >
                   <Check class="w-3 h-3" />
-                  <span>VALIDAR & MERGE</span>
+                  <span>REVISADO ➔</span>
                 </button>
+              </template>
+
+              <!-- Reviewed -> Merging to develop -->
+              <template v-else-if="task.status === 'reviewed'">
+                <span class="text-[10px] font-mono text-[#0284c7] font-bold flex items-center gap-1.5 animate-pulse">
+                  <Loader2 class="w-3 h-3 animate-spin" />
+                  <span>MERGEANDO NO DEVELOP...</span>
+                </span>
               </template>
 
               <!-- Done -->
               <template v-else-if="task.status === 'done'">
-                <span class="text-[10px] font-mono text-[#16a34a] flex items-center gap-1">
+                <span class="text-[10px] font-mono text-[#16a34a] flex items-center gap-1 font-bold">
                   <CheckCircle2 class="w-3 h-3" />
-                  MERGE REALIZADO
+                  CONCLUÍDO
                 </span>
               </template>
             </div>
@@ -394,14 +402,14 @@ watch(
   { deep: true }
 )
 
-// Auto-refresh tasks every 4s if any AI task is in progress
+// Auto-refresh tasks every 4s if any AI task is in progress or reviewed
 let pollInterval: any = null
 onMounted(() => {
   pollInterval = setInterval(async () => {
-    const hasActiveAiTask = projectsStore.tasks.some(
-      (t) => t.status === 'in_progress' && t.assignee_type === 'ai'
+    const hasActiveTasks = projectsStore.tasks.some(
+      (t) => (t.status === 'in_progress' && t.assignee_type === 'ai') || t.status === 'reviewed'
     )
-    if (hasActiveAiTask) {
+    if (hasActiveTasks) {
       await projectsStore.loadTasks()
     }
   }, 4000)
@@ -417,6 +425,7 @@ const columns: { id: TaskStatus; title: string; headerColor: string }[] = [
   { id: 'todo', title: 'A FAZER', headerColor: '#a66130' },
   { id: 'in_progress', title: 'EM PROGRESSO', headerColor: '#b07a3b' },
   { id: 'review', title: 'EM REVISÃO', headerColor: '#7d5628' },
+  { id: 'reviewed', title: 'REVISADO', headerColor: '#0284c7' },
   { id: 'done', title: 'CONCLUÍDO', headerColor: '#16a34a' },
 ]
 

@@ -25,6 +25,7 @@ export const useProjectsStore = defineStore('projects', () => {
       todo: [],
       in_progress: [],
       review: [],
+      reviewed: [],
       done: [],
     }
     filteredTasks.value.forEach((task) => {
