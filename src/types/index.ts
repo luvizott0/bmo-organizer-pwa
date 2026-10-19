@@ -71,3 +71,18 @@ export interface Reminder {
   created_at?: string
   updated_at?: string
 }
+
+export interface User {
+  id: number
+  name: string
+  email: string
+  is_admin?: boolean
+}
+
+export interface Workspace {
+  id: number
+  name: string
+  is_personal: boolean
+  role?: string
+}
+

@@ -11,16 +11,31 @@ export const api = axios.create({
 
 // Attach Sanctum Bearer token and active Workspace from storage
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('bmo_token')
+  const token = localStorage.getItem('bmo_token') || localStorage.getItem('flux_auth_token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
-  const workspaceId = localStorage.getItem('bmo_workspace_id')
+  const workspaceId = localStorage.getItem('bmo_workspace_id') || localStorage.getItem('flux_active_workspace_id')
   if (workspaceId) {
     config.headers['X-Workspace-Id'] = workspaceId
   }
   return config
 })
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('bmo_token')
+      localStorage.removeItem('flux_auth_token')
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 
 export const projectsApi = {
   list: async () => (await api.get<{ data: Project[] }>('/projects')).data.data,

@@ -46,6 +46,15 @@
         <span class="hidden sm:inline">[SYNC]</span>
       </button>
 
+      <button
+        @click="handleLogout"
+        class="retro-button-secondary font-mono text-xs px-2.5 py-1.5 rounded-xs border border-[#D8CDC5] flex items-center gap-1.5 cursor-pointer bg-white hover:bg-[#fdf0ea]"
+        title="Encerrar sessão"
+      >
+        <LogOut class="w-3.5 h-3.5 text-[#847062]" />
+        <span class="hidden sm:inline">[SAIR]</span>
+      </button>
+
       <slot name="actions" />
     </div>
   </header>
@@ -53,13 +62,23 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useProjectsStore } from '@/stores/projects'
 import { useCalendarStore } from '@/stores/calendar'
-import { Github, ExternalLink, RefreshCw } from 'lucide-vue-next'
+import { useAuthStore } from '@/stores/auth'
+import { Github, ExternalLink, RefreshCw, LogOut } from 'lucide-vue-next'
 
+const router = useRouter()
+const authStore = useAuthStore()
 const projectsStore = useProjectsStore()
 const calendarStore = useCalendarStore()
 const loading = ref(false)
+
+async function handleLogout() {
+  await authStore.logout()
+  router.push('/login')
+}
+
 
 const githubUrl = computed(() => {
   const repo = projectsStore.selectedProject?.github_repo

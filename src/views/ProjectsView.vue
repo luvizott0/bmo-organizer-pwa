@@ -92,10 +92,20 @@
         </div>
 
         <form @submit.prevent="handleCreateProject" class="p-5 space-y-4 font-sans">
+          <!-- Error alert -->
+          <div
+            v-if="submitError"
+            class="p-2.5 bg-[#fdf0ea] border-2 border-[#d9534f] text-[#c9302c] rounded-xs flex items-center gap-2 text-xs font-mono"
+          >
+            <AlertCircle class="w-4 h-4 shrink-0" />
+            <span>{{ submitError }}</span>
+          </div>
+
           <!-- Main Info -->
           <div class="grid grid-cols-3 gap-3">
             <div class="col-span-2">
               <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» NOME DO PROJETO</label>
+
               <input
                 v-model="form.name"
                 type="text"
@@ -201,9 +211,10 @@
             </button>
             <button
               type="submit"
-              class="retro-button"
+              :disabled="isSubmitting"
+              class="retro-button disabled:opacity-60"
             >
-              CRIAR PROJETO
+              {{ isSubmitting ? 'CRIANDO...' : 'CRIAR PROJETO' }}
             </button>
           </div>
         </form>
@@ -217,12 +228,15 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectsStore } from '@/stores/projects'
 import AppHeader from '@/components/layout/AppHeader.vue'
-import { Plus, Github, Bot } from 'lucide-vue-next'
+import { Plus, Github, Bot, AlertCircle } from 'lucide-vue-next'
 
 const projectsStore = useProjectsStore()
 const router = useRouter()
 
 const isModalOpen = ref(false)
+const isSubmitting = ref(false)
+const submitError = ref<string | null>(null)
+
 const form = ref({
   name: '',
   prefix: '',
@@ -239,24 +253,38 @@ function openBoard(projectId: number) {
 }
 
 async function handleCreateProject() {
-  await projectsStore.addProject({
-    name: form.value.name,
-    prefix: form.value.prefix.toUpperCase(),
-    github_repo: form.value.github_repo,
-    base_branch: form.value.base_branch,
-    test_command: form.value.test_command,
-    description: form.value.description,
-    color: form.value.color,
-  })
-  isModalOpen.value = false
-  form.value = {
-    name: '',
-    prefix: '',
-    github_repo: '',
-    base_branch: 'develop',
-    test_command: 'npm run test',
-    description: '',
-    color: '#a66130',
+  submitError.value = null
+  isSubmitting.value = true
+  try {
+    await projectsStore.addProject({
+      name: form.value.name,
+      prefix: form.value.prefix.toUpperCase(),
+      github_repo: form.value.github_repo,
+      base_branch: form.value.base_branch,
+      test_command: form.value.test_command,
+      description: form.value.description,
+      color: form.value.color,
+    })
+    isModalOpen.value = false
+    form.value = {
+      name: '',
+      prefix: '',
+      github_repo: '',
+      base_branch: 'develop',
+      test_command: 'npm run test',
+      description: '',
+      color: '#a66130',
+    }
+  } catch (err: any) {
+    console.error('Error creating project:', err)
+    submitError.value =
+      err.response?.data?.message ||
+      err.response?.data?.errors?.prefix?.[0] ||
+      err.response?.data?.errors?.name?.[0] ||
+      'Erro ao criar projeto. Verifique os dados ou se você está autenticado.'
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
+
