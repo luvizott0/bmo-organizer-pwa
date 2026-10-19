@@ -1,88 +1,76 @@
 <template>
-  <div class="h-full flex flex-col overflow-hidden bg-[#f8fafc]">
+  <div class="h-full flex flex-col overflow-hidden bg-[#f8f6f1]">
     <AppHeader>
       <template #actions>
         <button
           @click="isModalOpen = true"
-          class="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm shadow-indigo-600/20 transition-all cursor-pointer"
+          class="retro-button"
         >
-          <Plus class="w-4 h-4 stroke-[2.5]" />
-          <span>Cadastrar Projeto</span>
+          <Plus class="w-3.5 h-3.5" />
+          <span>CADASTRAR PROJETO</span>
         </button>
       </template>
     </AppHeader>
 
-    <div class="flex-1 overflow-y-auto p-8">
+    <div class="flex-1 overflow-y-auto p-6">
       <div class="max-w-6xl mx-auto space-y-6">
         <div>
-          <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Seus Projetos</h2>
-          <p class="text-xs text-slate-500 font-medium">
-            Cada projeto possui uma sigla única para tarefas (ex: <span class="font-mono font-bold text-indigo-600">CST-001</span>) e informações de contexto para agentes de IA (caminho local, branch base e testes).
+          <h2 class="section-marker text-lg mb-1">PROJETOS & REPOSITÓRIOS</h2>
+          <p class="text-xs text-[#847062] font-sans">
+            Cada projeto possui uma sigla única (ex: <span class="font-mono font-bold text-[#a66130]">CST-001</span>) e configurações para o Agente de IA do Homelab BMO.
           </p>
         </div>
 
-        <!-- Projects Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Projects Grid in Retro Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <div
             v-for="project in projectsStore.projects"
             :key="project.id"
-            class="p-6 rounded-3xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all duration-150 shadow-xs hover:shadow-md flex flex-col justify-between"
+            class="retro-card flex flex-col justify-between"
           >
             <div>
-              <!-- Top Row -->
-              <div class="flex items-center justify-between mb-3.5">
-                <div class="flex items-center gap-2.5">
-                  <span
-                    class="w-3.5 h-3.5 rounded-full shadow-2xs shrink-0"
-                    :style="{ backgroundColor: project.color || '#4f46e5' }"
-                  ></span>
-                  <span class="font-mono text-xs font-bold px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-2xs">
-                    {{ project.prefix }}
-                  </span>
+              <!-- Retro Card Header -->
+              <div class="retro-card-header flex items-center justify-between" :style="{ backgroundColor: project.color || '#a66130' }">
+                <div class="flex items-center gap-2">
+                  <span>[{{ project.prefix }}]</span>
+                  <span class="truncate">{{ project.name }}</span>
                 </div>
-                <span class="text-xs font-mono font-bold text-slate-400">
-                  {{ project.tasks_count ?? 0 }} tarefas
+                <span class="text-[10px] opacity-90">
+                  {{ project.tasks_count ?? 0 }} TAREFAS
                 </span>
               </div>
 
-              <!-- Title & Description -->
-              <h3 class="text-base font-extrabold text-slate-900 mb-1.5">
-                {{ project.name }}
-              </h3>
+              <!-- Body -->
+              <div class="p-4 space-y-3 font-sans">
+                <p v-if="project.description" class="text-xs text-[#847062] line-clamp-2 leading-relaxed">
+                  {{ project.description }}
+                </p>
 
-              <p v-if="project.description" class="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed font-normal">
-                {{ project.description }}
-              </p>
+                <!-- Details -->
+                <div class="space-y-1.5 text-xs font-mono text-[#5f4120]">
+                  <div v-if="project.github_repo" class="flex items-center gap-1.5 truncate p-1.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5]">
+                    <Github class="w-3.5 h-3.5 text-[#a66130] shrink-0" />
+                    <span class="truncate text-[11px]">{{ project.github_repo }}</span>
+                  </div>
 
-              <!-- Project Metadata Details -->
-              <div class="space-y-2 mb-5 text-xs text-slate-600 font-mono">
-                <div v-if="project.github_repo" class="flex items-center gap-2 truncate p-2 rounded-xl bg-slate-50 border border-slate-200/60">
-                  <Github class="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span class="truncate text-[11px]">{{ project.github_repo }}</span>
-                </div>
-
-                <div v-if="project.local_path" class="flex items-center gap-2 truncate p-2 rounded-xl bg-slate-50 border border-slate-200/60" title="Diretório de trabalho para IAs e Runners">
-                  <FolderCode class="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                  <span class="truncate text-[11px] text-slate-700">{{ project.local_path }}</span>
-                </div>
-
-                <div class="flex items-center gap-2 text-[11px] text-slate-500 pt-1">
-                  <span class="px-2 py-0.5 rounded-md bg-slate-100 font-bold text-slate-600">Base: {{ project.base_branch || 'develop' }}</span>
-                  <span v-if="project.test_command" class="px-2 py-0.5 rounded-md bg-slate-100 font-semibold text-slate-600 truncate" :title="project.test_command">
-                    {{ project.test_command }}
-                  </span>
+                  <div class="flex items-center gap-1.5 text-[10px] text-[#847062] pt-1">
+                    <span class="px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5]">Base: {{ project.base_branch || 'develop' }}</span>
+                    <span v-if="project.test_command" class="px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5] truncate">
+                      {{ project.test_command }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Card Bottom Bar -->
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span class="font-mono text-slate-400 font-medium">Próx: {{ project.prefix }}-{{ String((project.last_task_number || 0) + 1).padStart(3, '0') }}</span>
+            <!-- Footer -->
+            <div class="p-3 border-t border-[#D8CDC5] bg-[#fdf8f3] flex items-center justify-between text-xs font-mono">
+              <span class="text-[#847062]">Próx: {{ project.prefix }}-{{ String((project.last_task_number || 0) + 1).padStart(3, '0') }}</span>
               <button
                 @click="openBoard(project.id)"
-                class="font-bold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer flex items-center gap-1"
+                class="retro-button retro-button-sm cursor-pointer"
               >
-                Abrir Board →
+                ABRIR BOARD
               </button>
             </div>
           </div>
@@ -93,36 +81,33 @@
     <!-- Modal: Cadastrar Projeto -->
     <div
       v-if="isModalOpen"
-      class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+      class="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4 overflow-y-auto"
     >
-      <div class="w-full max-w-xl bg-white border border-slate-200 rounded-3xl shadow-xl p-7 text-slate-900 my-8">
-        <div class="flex items-center justify-between mb-5">
-          <div>
-            <h2 class="text-lg font-extrabold text-slate-900">Cadastrar Novo Projeto</h2>
-            <p class="text-xs text-slate-400 font-medium">Configure as informações gerais e diretrizes para automação de IA.</p>
-          </div>
-          <button @click="isModalOpen = false" class="text-slate-400 hover:text-slate-700 cursor-pointer">
-            <X class="w-5 h-5" />
+      <div class="w-full max-w-lg retro-card shadow-lg p-0 text-[#333333] bg-white my-6">
+        <div class="retro-card-header flex items-center justify-between">
+          <span>CADASTRAR NOVO PROJETO</span>
+          <button @click="isModalOpen = false" class="text-white/80 hover:text-white cursor-pointer font-mono font-bold">
+            [X]
           </button>
         </div>
 
-        <form @submit.prevent="handleCreateProject" class="space-y-4">
+        <form @submit.prevent="handleCreateProject" class="p-5 space-y-4 font-sans">
           <!-- Main Info -->
           <div class="grid grid-cols-3 gap-3">
             <div class="col-span-2">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">Nome do Projeto</label>
+              <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» NOME DO PROJETO</label>
               <input
                 v-model="form.name"
                 type="text"
                 required
                 placeholder="Ex: CapyShowTime"
-                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-600 shadow-2xs"
+                class="retro-input"
               />
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                Sigla (Prefix)
+              <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">
+                » SIGLA (PREFIX)
               </label>
               <input
                 v-model="form.prefix"
@@ -130,123 +115,95 @@
                 required
                 maxlength="6"
                 placeholder="Ex: CST"
-                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-mono uppercase font-bold text-indigo-600 focus:bg-white focus:outline-none focus:border-indigo-600 shadow-2xs"
+                class="retro-input font-mono uppercase font-bold text-[#a66130]"
               />
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">Repositório GitHub</label>
+              <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» REPOSITÓRIO GITHUB</label>
               <input
                 v-model="form.github_repo"
                 type="text"
-                placeholder="Ex: luviz/capyshowtime-pwa"
-                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-600 shadow-2xs"
+                placeholder="Ex: luvizott0/capyshowtime-pwa"
+                class="retro-input font-mono"
               />
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">Cor de Destaque</label>
-              <div class="flex items-center gap-2 pt-1.5">
+              <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» COR DO TEMA</label>
+              <div class="flex items-center gap-1.5 pt-1">
                 <button
-                  v-for="c in ['#4f46e5', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#3b82f6']"
+                  v-for="c in ['#a66130', '#7d5628', '#b07a3b', '#16a34a', '#dc2626', '#2563eb', '#847062']"
                   :key="c"
                   type="button"
                   @click="form.color = c"
-                  class="w-7 h-7 rounded-full border-2 transition-transform shadow-2xs cursor-pointer"
+                  class="w-6 h-6 rounded-xs border-2 transition-transform cursor-pointer"
                   :style="{ backgroundColor: c }"
-                  :class="form.color === c ? 'scale-110 border-slate-900' : 'border-white'"
+                  :class="form.color === c ? 'scale-110 border-[#333333]' : 'border-white'"
                 ></button>
               </div>
             </div>
           </div>
 
-          <!-- Section: AI Development Context -->
-          <div class="pt-3 border-t border-slate-100">
-            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800 mb-2 flex items-center gap-1.5">
-              <Bot class="w-4 h-4 text-purple-600 stroke-[2.2]" />
-              Contexto para Agentes de IA & Runners
+          <!-- Section: AI Context -->
+          <div class="p-3 bg-[#fdf8f3] border border-[#D8CDC5] rounded-xs space-y-2.5">
+            <h4 class="text-xs font-bold font-mono text-[#5f4120] flex items-center gap-1.5">
+              <Bot class="w-3.5 h-3.5 text-[#a66130]" />
+              CONTEXTO PARA AGENTE DE IA (BMO HOMELAB)
             </h4>
-            <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">
-              Campos essenciais para que a IA e os runners saibam onde abrir o código, de qual branch partir e como testar.
-            </p>
 
-            <div class="space-y-3">
+            <div class="grid grid-cols-2 gap-2 font-mono">
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">
-                  Caminho Local do Repositório (Local Path)
-                </label>
+                <label class="block text-[10px] font-bold text-[#847062] mb-0.5">BRANCH BASE</label>
                 <input
-                  v-model="form.local_path"
+                  v-model="form.base_branch"
                   type="text"
-                  placeholder="Ex: c:\Users\Luviz\OneDrive\Documentos\9 - Projects\capihouse\capyshowtime-pwa"
-                  class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-600"
+                  placeholder="develop"
+                  class="retro-input text-xs"
                 />
               </div>
 
-              <div class="grid grid-cols-3 gap-3">
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Branch Base</label>
-                  <input
-                    v-model="form.base_branch"
-                    type="text"
-                    placeholder="develop"
-                    class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-600"
-                  />
-                </div>
-
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Comando de Testes</label>
-                  <input
-                    v-model="form.test_command"
-                    type="text"
-                    placeholder="npm run test"
-                    class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-600"
-                  />
-                </div>
-
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Arquivo de Regras</label>
-                  <input
-                    v-model="form.instructions_file"
-                    type="text"
-                    placeholder="AGENTS.md"
-                    class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-600"
-                  />
-                </div>
+              <div>
+                <label class="block text-[10px] font-bold text-[#847062] mb-0.5">COMANDO DE TESTES</label>
+                <input
+                  v-model="form.test_command"
+                  type="text"
+                  placeholder="npm run test"
+                  class="retro-input text-xs"
+                />
               </div>
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Descrição do Projeto</label>
+            <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» DESCRIÇÃO</label>
             <textarea
               v-model="form.description"
               rows="2"
-              placeholder="Resumo do propósito da aplicação..."
-              class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-600"
+              placeholder="Resumo do projeto..."
+              class="retro-input"
             ></textarea>
           </div>
 
-          <!-- Preview -->
-          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 font-mono">
-            Exemplo de ID Gerado: <span class="text-indigo-600 font-bold">{{ (form.prefix || 'PRJ').toUpperCase() }}-001</span>
+          <div class="p-2.5 bg-[#f8f6f1] border border-[#D8CDC5] text-[11px] text-[#5f4120] font-mono">
+            Exemplo de ID: <span class="text-[#a66130] font-bold">{{ (form.prefix || 'PRJ').toUpperCase() }}-001</span>
           </div>
 
-          <div class="flex items-center justify-end gap-3 pt-3">
+          <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-[#D8CDC5]">
             <button
               type="button"
               @click="isModalOpen = false"
-              class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
+              class="retro-button-secondary font-mono text-xs px-3 py-1.5 rounded-xs"
             >
-              Cancelar
+              CANCELAR
             </button>
             <button
               type="submit"
-              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm shadow-indigo-600/20 transition-all cursor-pointer"
+              class="retro-button"
             >
-              Criar Projeto
+              CRIAR PROJETO
             </button>
           </div>
         </form>
@@ -260,7 +217,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectsStore } from '@/stores/projects'
 import AppHeader from '@/components/layout/AppHeader.vue'
-import { Plus, Github, FolderCode, Bot, X } from 'lucide-vue-next'
+import { Plus, Github, Bot } from 'lucide-vue-next'
 
 const projectsStore = useProjectsStore()
 const router = useRouter()
@@ -270,12 +227,10 @@ const form = ref({
   name: '',
   prefix: '',
   github_repo: '',
-  local_path: '',
   base_branch: 'develop',
   test_command: 'npm run test',
-  instructions_file: 'AGENTS.md',
   description: '',
-  color: '#4f46e5',
+  color: '#a66130',
 })
 
 function openBoard(projectId: number) {
@@ -288,10 +243,8 @@ async function handleCreateProject() {
     name: form.value.name,
     prefix: form.value.prefix.toUpperCase(),
     github_repo: form.value.github_repo,
-    local_path: form.value.local_path,
     base_branch: form.value.base_branch,
     test_command: form.value.test_command,
-    instructions_file: form.value.instructions_file,
     description: form.value.description,
     color: form.value.color,
   })
@@ -300,12 +253,10 @@ async function handleCreateProject() {
     name: '',
     prefix: '',
     github_repo: '',
-    local_path: '',
     base_branch: 'develop',
     test_command: 'npm run test',
-    instructions_file: 'AGENTS.md',
     description: '',
-    color: '#4f46e5',
+    color: '#a66130',
   }
 }
 </script>

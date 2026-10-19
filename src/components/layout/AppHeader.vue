@@ -1,22 +1,23 @@
 <template>
-  <header class="h-16 border-b border-slate-200/80 bg-white/80 backdrop-blur-md px-7 flex items-center justify-between select-none shrink-0 shadow-2xs">
+  <header class="h-16 border-b-2 border-[#D8CDC5] bg-[#fdf8f3] px-6 flex items-center justify-between select-none shrink-0 shadow-2xs">
     <div class="flex items-center gap-3">
-      <div v-if="projectsStore.selectedProject && $route.path === '/board'" class="flex items-center gap-2.5">
+      <div v-if="projectsStore.selectedProject && $route.path === '/board'" class="flex items-center gap-2">
+        <span class="section-marker text-sm uppercase">PROJETO</span>
         <span
-          class="w-3 h-3 rounded-full shadow-2xs shrink-0"
-          :style="{ backgroundColor: projectsStore.selectedProject.color || '#4f46e5' }"
+          class="w-2.5 h-2.5 rounded-xs shrink-0"
+          :style="{ backgroundColor: projectsStore.selectedProject.color || '#a66130' }"
         ></span>
-        <span class="font-mono text-xs font-bold px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-2xs">
+        <span class="font-mono text-xs font-bold px-1.5 py-0.5 rounded-xs bg-[#ffffff] text-[#a66130] border border-[#D8CDC5]">
           {{ projectsStore.selectedProject.prefix }}
         </span>
-        <h1 class="text-base font-extrabold text-slate-900 tracking-tight">
+        <h1 class="text-sm font-bold font-mono text-[#422d16]">
           {{ projectsStore.selectedProject.name }}
         </h1>
         <a
           v-if="projectsStore.selectedProject.github_repo"
           :href="githubUrl"
           target="_blank"
-          class="text-xs text-slate-500 hover:text-indigo-600 flex items-center gap-1.5 transition-colors ml-1 bg-slate-50 hover:bg-slate-100 px-2.5 py-1 rounded-xl border border-slate-200 font-mono font-medium shadow-2xs"
+          class="text-xs text-[#847062] hover:text-[#a66130] flex items-center gap-1 transition-colors ml-2 bg-[#ffffff] px-2 py-0.5 rounded-xs border border-[#D8CDC5] font-mono"
         >
           <Github class="w-3.5 h-3.5" />
           <span>{{ projectsStore.selectedProject.github_repo }}</span>
@@ -24,24 +25,13 @@
         </a>
       </div>
 
-      <div v-else-if="$route.path === '/calendar'" class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-          <CalendarIcon class="w-4 h-4 stroke-[2.2]" />
-        </div>
-        <div>
-          <h1 class="text-base font-extrabold text-slate-900 tracking-tight">Agenda & Rotina da Casa</h1>
-          <p class="text-[11px] text-slate-400 font-medium">Sincronizado com WhatsApp e BMO</p>
-        </div>
+      <div v-else-if="$route.path === '/calendar'" class="flex items-center gap-2">
+        <span class="section-marker text-sm uppercase">AGENDA & ROTINA</span>
+        <span class="text-xs font-mono text-[#847062]">[Sincronizado BMO & WhatsApp]</span>
       </div>
 
-      <div v-else class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-          <FolderGit2 class="w-4 h-4 stroke-[2.2]" />
-        </div>
-        <div>
-          <h1 class="text-base font-extrabold text-slate-900 tracking-tight">Projetos & Repositórios</h1>
-          <p class="text-[11px] text-slate-400 font-medium">Configurações para desenvolvimento e agentes de IA</p>
-        </div>
+      <div v-else class="flex items-center gap-2">
+        <span class="section-marker text-sm uppercase">GERENCIADOR DE PROJETOS</span>
       </div>
     </div>
 
@@ -49,10 +39,11 @@
     <div class="flex items-center gap-3">
       <button
         @click="refreshData"
-        class="p-2 rounded-xl bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all border border-slate-200 shadow-2xs cursor-pointer"
+        class="retro-button-secondary font-mono text-xs px-2.5 py-1.5 rounded-xs border border-[#D8CDC5] flex items-center gap-1.5 cursor-pointer bg-white hover:bg-[#e8c9a5]"
         title="Atualizar dados"
       >
-        <RefreshCw class="w-4 h-4" :class="{ 'animate-spin text-indigo-600': loading }" />
+        <RefreshCw class="w-3.5 h-3.5 text-[#a66130]" :class="{ 'animate-spin': loading }" />
+        <span class="hidden sm:inline">[SYNC]</span>
       </button>
 
       <slot name="actions" />
@@ -64,7 +55,7 @@
 import { computed, ref } from 'vue'
 import { useProjectsStore } from '@/stores/projects'
 import { useCalendarStore } from '@/stores/calendar'
-import { Github, ExternalLink, RefreshCw, Calendar as CalendarIcon, FolderGit2 } from 'lucide-vue-next'
+import { Github, ExternalLink, RefreshCw } from 'lucide-vue-next'
 
 const projectsStore = useProjectsStore()
 const calendarStore = useCalendarStore()

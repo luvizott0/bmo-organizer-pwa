@@ -1,110 +1,105 @@
 <template>
-  <aside class="w-64 min-h-screen bg-white border-r border-slate-200/80 px-5 py-6 flex flex-col justify-between select-none shrink-0 shadow-xs">
+  <aside class="w-64 min-h-screen bg-[#fdf8f3] border-r-2 border-[#D8CDC5] px-4 py-5 flex flex-col justify-between select-none shrink-0 shadow-xs">
     <!-- Top Brand & Navigation -->
-    <div class="space-y-6">
-      <!-- BMO Logo -->
-      <div class="flex items-center gap-3 px-2">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-sm shadow-indigo-200">
+    <div class="space-y-5">
+      <!-- CapiHouse Style Brand Header -->
+      <div class="flex items-center gap-2.5 px-1 pb-3 border-b border-[#D8CDC5]">
+        <div class="w-8 h-8 rounded-sm bg-[#a66130] flex items-center justify-center text-white font-mono font-bold text-sm shadow-xs">
           B
         </div>
-        <div class="leading-none">
-          <div class="flex items-center gap-1.5">
-            <span class="font-extrabold text-lg tracking-tight text-slate-900">BMO</span>
-            <span class="text-[10px] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-600 border border-indigo-100">Desk</span>
+        <div class="leading-tight">
+          <div class="font-mono text-sm font-bold tracking-tight text-[#422d16] flex items-center gap-1.5">
+            BMO<span class="text-[#a66130]">/</span>ORGANIZER
           </div>
-          <span class="text-[11px] font-medium text-slate-400">Projetos & Rotina</span>
+          <div class="text-[10px] font-mono uppercase tracking-wider text-[#847062]">
+            Desk Workspace
+          </div>
         </div>
       </div>
 
-      <!-- Main Navigation Links -->
-      <nav class="space-y-1">
+      <!-- Main Navigation Tabs in CapiHouse NavTab Style -->
+      <nav class="space-y-1.5">
         <RouterLink
           to="/board"
-          :class="[
-            'flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-150',
-            $route.path === '/board'
-              ? 'bg-indigo-50/90 text-indigo-600 shadow-2xs border border-indigo-100/50'
-              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-          ]"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-xs font-mono text-xs font-bold uppercase transition-all duration-150 border"
+          :class="$route.path === '/board'
+            ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
+            : 'bg-[#f8f6f1] text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5] hover:text-[#422d16]'"
         >
-          <KanbanSquare class="w-4 h-4 stroke-[2.2]" />
+          <KanbanSquare class="w-4 h-4" />
           <span>Kanban Board</span>
         </RouterLink>
 
         <RouterLink
           to="/calendar"
-          :class="[
-            'flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-150',
-            $route.path === '/calendar'
-              ? 'bg-indigo-50/90 text-indigo-600 shadow-2xs border border-indigo-100/50'
-              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-          ]"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-xs font-mono text-xs font-bold uppercase transition-all duration-150 border"
+          :class="$route.path === '/calendar'
+            ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
+            : 'bg-[#f8f6f1] text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5] hover:text-[#422d16]'"
         >
-          <CalendarDays class="w-4 h-4 stroke-[2.2]" />
+          <CalendarDays class="w-4 h-4" />
           <span>Calendário & Rotina</span>
         </RouterLink>
 
         <RouterLink
           to="/projects"
-          :class="[
-            'flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-150',
-            $route.path === '/projects'
-              ? 'bg-indigo-50/90 text-indigo-600 shadow-2xs border border-indigo-100/50'
-              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-          ]"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-xs font-mono text-xs font-bold uppercase transition-all duration-150 border"
+          :class="$route.path === '/projects'
+            ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
+            : 'bg-[#f8f6f1] text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5] hover:text-[#422d16]'"
         >
-          <FolderGit2 class="w-4 h-4 stroke-[2.2]" />
-          <span>Gerenciar Projetos</span>
+          <FolderGit2 class="w-4 h-4" />
+          <span>Projetos</span>
         </RouterLink>
       </nav>
 
       <!-- Projects Section -->
-      <div class="pt-4 border-t border-slate-100">
-        <div class="px-2 pb-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-400">
-          <span>Seus Projetos</span>
-          <span class="text-xs font-mono font-bold text-slate-500">{{ projectsStore.projects.length }}</span>
+      <div class="pt-3 border-t border-[#D8CDC5]">
+        <div class="px-1 pb-2 flex items-center justify-between section-marker text-xs">
+          <span>PROJETOS</span>
+          <span class="text-[11px] font-mono text-[#847062]">[{{ projectsStore.projects.length }}]</span>
         </div>
 
-        <div class="space-y-1 max-h-[42vh] overflow-y-auto pr-1">
+        <div class="space-y-1.5 max-h-[40vh] overflow-y-auto pr-0.5">
           <button
             v-for="project in projectsStore.projects"
             :key="project.id"
             @click="selectProject(project.id)"
-            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-left transition-all duration-150 cursor-pointer"
+            class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xs text-xs text-left transition-all duration-150 cursor-pointer border"
             :class="projectsStore.selectedProjectId === project.id
-              ? 'bg-slate-100/90 text-slate-900 font-bold border border-slate-200 shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
+              ? 'bg-[#ffffff] text-[#422d16] font-bold border-[#a66130] shadow-xs'
+              : 'bg-[#f8f6f1] text-[#5f4120] border-[#D8CDC5] hover:bg-[#e8c9a5]'"
           >
             <div class="flex items-center gap-2 truncate">
               <span
-                class="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs"
-                :style="{ backgroundColor: project.color || '#4f46e5' }"
+                class="w-2 h-2 rounded-xs shrink-0"
+                :style="{ backgroundColor: project.color || '#a66130' }"
               ></span>
-              <span class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-white text-indigo-600 border border-slate-200/80 shadow-2xs">
+              <span class="font-mono text-[10px] font-bold px-1 py-0.2 rounded-xs bg-[#f8f6f1] text-[#a66130] border border-[#D8CDC5]">
                 {{ project.prefix }}
               </span>
-              <span class="truncate">{{ project.name }}</span>
+              <span class="truncate font-sans font-medium text-xs">{{ project.name }}</span>
             </div>
-            <span class="text-[11px] font-mono font-semibold text-slate-400">
+            <span class="text-[10px] font-mono text-[#847062]">
               {{ project.tasks_count ?? 0 }}
             </span>
           </button>
 
-          <div v-if="projectsStore.projects.length === 0" class="py-4 px-2 text-center text-xs text-slate-400 italic">
-            Nenhum projeto ainda.
+          <div v-if="projectsStore.projects.length === 0" class="py-4 px-1 text-center text-xs text-[#847062] font-mono italic">
+            [nenhum projeto]
           </div>
         </div>
       </div>
     </div>
 
     <!-- Homelab Footer -->
-    <div class="pt-4 border-t border-slate-100">
-      <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="font-bold text-slate-800">Homelab BMO</span>
+    <div class="pt-3 border-t border-[#D8CDC5]">
+      <div class="p-2.5 rounded-xs bg-[#ffffff] border border-[#D8CDC5] flex items-center justify-between text-xs font-mono">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-[#16a34a] animate-pulse"></span>
+          <span class="font-bold text-[#422d16]">HOMELAB.BMO</span>
         </div>
-        <span class="text-[11px] font-mono font-bold text-slate-400">Online</span>
+        <span class="text-[10px] text-[#847062]">[ONLINE]</span>
       </div>
     </div>
   </aside>

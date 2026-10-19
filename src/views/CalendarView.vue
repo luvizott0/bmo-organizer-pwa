@@ -1,31 +1,31 @@
 <template>
-  <div class="h-full flex flex-col overflow-hidden bg-[#f8fafc]">
+  <div class="h-full flex flex-col overflow-hidden bg-[#f8f6f1]">
     <AppHeader>
       <template #actions>
         <!-- View Switcher -->
-        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs font-bold">
+        <div class="flex items-center gap-1 bg-[#fdf8f3] p-1 rounded-xs border border-[#D8CDC5] text-xs font-mono font-bold">
           <button
             @click="calendarStore.currentView = 'month'"
-            class="px-3.5 py-1.5 rounded-lg transition-all duration-150 cursor-pointer"
-            :class="calendarStore.currentView === 'month' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'"
+            class="px-2.5 py-1 rounded-xs transition-all duration-150 cursor-pointer uppercase"
+            :class="calendarStore.currentView === 'month' ? 'bg-[#a66130] text-white' : 'text-[#7d5628] hover:text-[#422d16]'"
           >
-            Mês
+            MÊS
           </button>
           <button
             @click="calendarStore.currentView = 'week'"
-            class="px-3.5 py-1.5 rounded-lg transition-all duration-150 cursor-pointer"
-            :class="calendarStore.currentView === 'week' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'"
+            class="px-2.5 py-1 rounded-xs transition-all duration-150 cursor-pointer uppercase"
+            :class="calendarStore.currentView === 'week' ? 'bg-[#a66130] text-white' : 'text-[#7d5628] hover:text-[#422d16]'"
           >
-            Semana
+            SEMANA
           </button>
         </div>
 
         <button
           @click="isModalOpen = true"
-          class="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm shadow-emerald-600/20 transition-all cursor-pointer"
+          class="retro-button"
         >
-          <Plus class="w-4 h-4 stroke-[2.5]" />
-          <span>Novo Evento / Lembrete</span>
+          <Plus class="w-3.5 h-3.5" />
+          <span>NOVO EVENTO / LEMBRETE</span>
         </button>
       </template>
     </AppHeader>
@@ -33,71 +33,71 @@
     <!-- Calendar Area -->
     <div class="flex-1 flex overflow-hidden">
       <!-- Grid Area -->
-      <div class="flex-1 flex flex-col p-6 overflow-hidden">
+      <div class="flex-1 flex flex-col p-5 overflow-hidden">
         <!-- Calendar Nav -->
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-3">
-            <h2 class="text-xl font-extrabold text-slate-900 capitalize tracking-tight">
-              {{ monthTitle }}
+            <h2 class="text-base font-bold font-mono text-[#422d16] capitalize">
+              » {{ monthTitle }}
             </h2>
             <button
               @click="goToToday"
-              class="px-3 py-1 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 shadow-2xs transition-colors cursor-pointer"
+              class="retro-button-secondary font-mono text-xs px-2.5 py-1 rounded-xs"
             >
-              Hoje
+              [HOJE]
             </button>
           </div>
 
-          <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-2xs">
+          <div class="flex items-center gap-1 bg-[#ffffff] border border-[#D8CDC5] rounded-xs p-0.5">
             <button
               @click="navigate(-1)"
-              class="p-1.5 rounded-lg hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+              class="p-1 rounded-xs hover:bg-[#f8f6f1] text-[#7d5628] hover:text-[#422d16] transition-colors cursor-pointer"
             >
               <ChevronLeft class="w-4 h-4" />
             </button>
             <button
               @click="navigate(1)"
-              class="p-1.5 rounded-lg hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+              class="p-1 rounded-xs hover:bg-[#f8f6f1] text-[#7d5628] hover:text-[#422d16] transition-colors cursor-pointer"
             >
               <ChevronRight class="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        <!-- Month Grid -->
-        <div v-if="calendarStore.currentView === 'month'" class="flex-1 flex flex-col border border-slate-200/80 rounded-3xl overflow-hidden bg-white shadow-xs">
+        <!-- Month Grid in CapiHouse style -->
+        <div v-if="calendarStore.currentView === 'month'" class="flex-1 flex flex-col retro-card shadow-xs">
           <!-- Weekday Labels -->
-          <div class="grid grid-cols-7 border-b border-slate-200/80 bg-slate-50/80 text-center text-xs font-bold text-slate-500 py-3 uppercase tracking-wider">
+          <div class="grid grid-cols-7 border-b border-[#D8CDC5] bg-[#fdf8f3] text-center text-xs font-bold font-mono text-[#7d5628] py-2 uppercase">
             <span v-for="day in weekDayNames" :key="day">{{ day }}</span>
           </div>
 
           <!-- Days Grid -->
-          <div class="flex-1 grid grid-cols-7 grid-rows-5 gap-px bg-slate-200/60">
+          <div class="flex-1 grid grid-cols-7 grid-rows-5 gap-px bg-[#D8CDC5]">
             <div
               v-for="cell in monthDays"
               :key="cell.dateKey"
-              class="bg-white p-2.5 flex flex-col overflow-hidden transition-colors"
+              class="bg-white p-2 flex flex-col overflow-hidden transition-colors"
               :class="{
-                'opacity-40 bg-slate-50/50': !cell.isCurrentMonth,
-                'bg-indigo-50/20': cell.isToday,
+                'opacity-40 bg-[#f8f6f1]': !cell.isCurrentMonth,
+                'bg-[#fdf8f3]': cell.isToday,
               }"
             >
-              <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center justify-between mb-1">
                 <span
-                  class="text-xs font-extrabold w-6 h-6 rounded-full flex items-center justify-center font-mono"
-                  :class="cell.isToday ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-700'"
+                  class="text-xs font-bold font-mono w-5 h-5 rounded-xs flex items-center justify-center"
+                  :class="cell.isToday ? 'bg-[#a66130] text-white' : 'text-[#5f4120]'"
                 >
                   {{ cell.dayNumber }}
                 </span>
               </div>
 
               <!-- Events -->
-              <div class="flex-1 overflow-y-auto space-y-1.5 pr-0.5">
+              <div class="flex-1 overflow-y-auto space-y-1 pr-0.5">
                 <div
                   v-for="event in cell.events"
                   :key="event.id"
-                  class="px-2 py-1 rounded-lg text-[11px] font-bold text-white truncate shadow-2xs"
-                  :style="{ backgroundColor: event.color || '#4f46e5' }"
+                  class="px-1.5 py-0.5 rounded-xs text-[10px] font-bold font-mono text-white truncate shadow-2xs"
+                  :style="{ backgroundColor: event.color || '#a66130' }"
                   :title="event.title"
                 >
                   {{ event.title }}
@@ -106,11 +106,11 @@
                 <div
                   v-for="rem in cell.reminders"
                   :key="rem.id"
-                  class="px-2 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 border"
-                  :class="rem.is_completed ? 'line-through text-slate-400 bg-slate-50 border-slate-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200/60'"
+                  class="px-1.5 py-0.5 rounded-xs text-[10px] font-mono font-bold flex items-center gap-1 border"
+                  :class="rem.is_completed ? 'line-through text-[#847062] bg-[#f8f6f1] border-[#D8CDC5]' : 'text-[#a66130] bg-[#fdf8f3] border-[#D8CDC5]'"
                   :title="rem.title"
                 >
-                  <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="rem.is_completed ? 'bg-slate-400' : 'bg-emerald-500'"></span>
+                  <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="rem.is_completed ? 'bg-[#847062]' : 'bg-[#a66130]'"></span>
                   <span class="truncate">{{ rem.title }}</span>
                 </div>
               </div>
@@ -119,33 +119,33 @@
         </div>
 
         <!-- Week Grid -->
-        <div v-else class="flex-1 flex flex-col border border-slate-200/80 rounded-3xl overflow-hidden bg-white shadow-xs">
-          <div class="grid grid-cols-7 flex-1 gap-px bg-slate-200/60">
+        <div v-else class="flex-1 flex flex-col retro-card shadow-xs">
+          <div class="grid grid-cols-7 flex-1 gap-px bg-[#D8CDC5]">
             <div
               v-for="day in weekDays"
               :key="day.dateKey"
-              class="bg-white p-3.5 flex flex-col"
-              :class="{ 'bg-indigo-50/20': day.isToday }"
+              class="bg-white p-3 flex flex-col"
+              :class="{ 'bg-[#fdf8f3]': day.isToday }"
             >
-              <div class="text-center pb-3 border-b border-slate-100 mb-3">
-                <span class="text-xs font-bold text-slate-400 block uppercase tracking-wider">{{ day.weekday }}</span>
+              <div class="text-center pb-2 border-b border-[#D8CDC5] mb-2 font-mono">
+                <span class="text-xs font-bold text-[#847062] block uppercase">{{ day.weekday }}</span>
                 <span
-                  class="inline-block text-base font-extrabold font-mono px-2 py-0.5 rounded-full mt-0.5"
-                  :class="day.isToday ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-800'"
+                  class="inline-block text-sm font-bold px-2 py-0.5 rounded-xs mt-0.5"
+                  :class="day.isToday ? 'bg-[#a66130] text-white' : 'text-[#422d16]'"
                 >
                   {{ day.dayNumber }}
                 </span>
               </div>
 
-              <div class="flex-1 overflow-y-auto space-y-2">
+              <div class="flex-1 overflow-y-auto space-y-1.5">
                 <div
                   v-for="event in day.events"
                   :key="event.id"
-                  class="p-2.5 rounded-xl text-xs font-bold text-white shadow-2xs"
-                  :style="{ backgroundColor: event.color || '#4f46e5' }"
+                  class="p-2 rounded-xs text-xs font-bold font-mono text-white shadow-2xs"
+                  :style="{ backgroundColor: event.color || '#a66130' }"
                 >
                   <div class="truncate">{{ event.title }}</div>
-                  <div v-if="event.start_at" class="text-[10px] opacity-90 font-mono mt-0.5">
+                  <div v-if="event.start_at" class="text-[9px] opacity-90 mt-0.5">
                     {{ formatTime(event.start_at) }}
                   </div>
                 </div>
@@ -154,11 +154,11 @@
                   v-for="rem in day.reminders"
                   :key="rem.id"
                   @click="calendarStore.toggleReminder(rem.id)"
-                  class="p-2.5 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer border transition-colors shadow-2xs"
-                  :class="rem.is_completed ? 'bg-slate-50 text-slate-400 border-slate-200 line-through' : 'bg-emerald-50 text-emerald-800 border-emerald-200/60 hover:bg-emerald-100/60'"
+                  class="p-2 rounded-xs text-xs font-mono font-bold flex items-center justify-between cursor-pointer border transition-colors"
+                  :class="rem.is_completed ? 'bg-[#f8f6f1] text-[#847062] border-[#D8CDC5] line-through' : 'bg-[#fdf8f3] text-[#a66130] border-[#D8CDC5] hover:bg-[#e8c9a5]'"
                 >
                   <span class="truncate">{{ rem.title }}</span>
-                  <CheckCircle2 class="w-4 h-4 shrink-0" :class="rem.is_completed ? 'text-slate-400' : 'text-emerald-600'" />
+                  <CheckCircle2 class="w-3.5 h-3.5 shrink-0" :class="rem.is_completed ? 'text-[#847062]' : 'text-[#a66130]'" />
                 </div>
               </div>
             </div>
@@ -167,52 +167,50 @@
       </div>
 
       <!-- Right Sidepanel: Rotina & WhatsApp -->
-      <aside class="w-80 border-l border-slate-200/80 bg-white p-6 flex flex-col shrink-0 shadow-xs">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-              <Bell class="w-4 h-4 stroke-[2.2]" />
-            </div>
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Rotina & WhatsApp
+      <aside class="w-80 border-l-2 border-[#D8CDC5] bg-[#fdf8f3] p-5 flex flex-col shrink-0">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-1.5">
+            <Bell class="w-4 h-4 text-[#a66130]" />
+            <h3 class="section-marker text-xs uppercase">
+              ROTINA & WHATSAPP
             </h3>
           </div>
-          <span class="text-[10px] font-bold font-mono text-emerald-600 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-100">
-            Sincronizado
+          <span class="text-[9px] font-bold font-mono text-[#a66130] px-1.5 py-0.5 rounded-xs bg-white border border-[#D8CDC5]">
+            [SYNC]
           </span>
         </div>
 
-        <p class="text-xs text-slate-500 mb-5 leading-relaxed">
-          Itens gerenciados pelo BMO e integrados com seu grupo de rotina do WhatsApp.
+        <p class="text-xs text-[#847062] font-sans mb-4 leading-relaxed">
+          Itens de rotina integrados ao grupo de WhatsApp pelo BMO.
         </p>
 
         <!-- Reminders List -->
-        <div class="flex-1 overflow-y-auto space-y-2.5 pr-1">
+        <div class="flex-1 overflow-y-auto space-y-2 pr-0.5">
           <div
             v-for="rem in calendarStore.reminders"
             :key="rem.id"
             @click="calendarStore.toggleReminder(rem.id)"
-            class="p-3.5 rounded-2xl border transition-all duration-150 cursor-pointer flex items-start gap-3"
-            :class="rem.is_completed ? 'bg-slate-50/70 border-slate-200 text-slate-400' : 'bg-white border-slate-200/90 hover:border-slate-300 text-slate-800 shadow-2xs hover:shadow-xs'"
+            class="p-2.5 rounded-xs border-2 transition-all duration-150 cursor-pointer flex items-start gap-2.5"
+            :class="rem.is_completed ? 'bg-[#f8f6f1] border-[#D8CDC5] text-[#847062]' : 'bg-white border-[#D8CDC5] hover:border-[#a66130] text-[#333333] shadow-xs'"
           >
-            <button class="mt-0.5 text-slate-400 hover:text-emerald-600 transition-colors">
-              <CheckCircle2 class="w-4 h-4" :class="rem.is_completed ? 'text-emerald-500' : 'text-slate-300'" />
+            <button class="mt-0.5 text-[#847062] hover:text-[#a66130] transition-colors">
+              <CheckCircle2 class="w-4 h-4" :class="rem.is_completed ? 'text-[#a66130]' : 'text-[#D8CDC5]'" />
             </button>
             <div class="flex-1 min-w-0">
-              <p class="text-xs font-bold leading-snug" :class="{ 'line-through text-slate-400': rem.is_completed }">
+              <p class="text-xs font-bold font-sans leading-snug" :class="{ 'line-through text-[#847062]': rem.is_completed }">
                 {{ rem.title }}
               </p>
-              <div class="flex items-center gap-2 mt-1 text-[11px] text-slate-500 font-mono">
+              <div class="flex items-center gap-2 mt-1 text-[10px] text-[#847062] font-mono">
                 <span>{{ formatDate(rem.due_at) }}</span>
-                <span v-if="rem.notify_whatsapp" class="text-emerald-600 font-bold flex items-center gap-0.5">
-                  <BellRing class="w-3 h-3" /> Zap
+                <span v-if="rem.notify_whatsapp" class="text-[#a66130] font-bold flex items-center gap-0.5">
+                  <BellRing class="w-3 h-3" /> ZAP
                 </span>
               </div>
             </div>
           </div>
 
-          <div v-if="calendarStore.reminders.length === 0" class="py-12 text-center text-xs text-slate-400 italic">
-            Nenhum lembrete pendente na rotina.
+          <div v-if="calendarStore.reminders.length === 0" class="py-8 text-center text-xs text-[#847062] font-mono italic">
+            [nenhum lembrete pendente]
           </div>
         </div>
       </aside>
@@ -221,104 +219,103 @@
     <!-- Modal: Novo Evento / Lembrete -->
     <div
       v-if="isModalOpen"
-      class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4"
+      class="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4"
     >
-      <div class="w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-xl p-6 text-slate-900">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-extrabold text-slate-900">Criar na Agenda / Rotina</h2>
-          <button @click="isModalOpen = false" class="text-slate-400 hover:text-slate-700 cursor-pointer">
-            <X class="w-5 h-5" />
+      <div class="w-full max-w-md retro-card shadow-lg p-0 text-[#333333] bg-white">
+        <div class="retro-card-header flex items-center justify-between">
+          <span>NOVO ITEM // AGENDA & ROTINA</span>
+          <button @click="isModalOpen = false" class="text-white/80 hover:text-white cursor-pointer font-mono font-bold">
+            [X]
           </button>
         </div>
 
-        <!-- Type Selector -->
-        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl mb-4 text-xs font-bold">
-          <button
-            type="button"
-            @click="formType = 'event'"
-            class="py-2 rounded-lg transition-all duration-150 cursor-pointer"
-            :class="formType === 'event' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'"
-          >
-            Evento com Horário
-          </button>
-          <button
-            type="button"
-            @click="formType = 'reminder'"
-            class="py-2 rounded-lg transition-all duration-150 cursor-pointer"
-            :class="formType === 'reminder' ? 'bg-white text-emerald-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'"
-          >
-            Lembrete de Rotina
-          </button>
-        </div>
+        <div class="p-5 font-sans space-y-4">
+          <!-- Type Selector -->
+          <div class="grid grid-cols-2 gap-2 p-1 bg-[#fdf8f3] rounded-xs border border-[#D8CDC5] text-xs font-mono font-bold">
+            <button
+              type="button"
+              @click="formType = 'event'"
+              class="py-1.5 rounded-xs transition-all duration-150 cursor-pointer uppercase"
+              :class="formType === 'event' ? 'bg-[#a66130] text-white' : 'text-[#7d5628] hover:text-[#422d16]'"
+            >
+              EVENTO COM HORA
+            </button>
+            <button
+              type="button"
+              @click="formType = 'reminder'"
+              class="py-1.5 rounded-xs transition-all duration-150 cursor-pointer uppercase"
+              :class="formType === 'reminder' ? 'bg-[#a66130] text-white' : 'text-[#7d5628] hover:text-[#422d16]'"
+            >
+              LEMBRETE ROTINA
+            </button>
+          </div>
 
-        <form @submit.prevent="handleCreate">
-          <div class="space-y-4">
+          <form @submit.prevent="handleCreate" class="space-y-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">Título</label>
+              <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» TÍTULO</label>
               <input
                 v-model="form.title"
                 type="text"
                 required
                 :placeholder="formType === 'event' ? 'Ex: Consulta Médica / Reunião' : 'Ex: Lavar louça / Colocar lixo'"
-                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-600 shadow-2xs"
+                class="retro-input"
               />
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">Data e Hora</label>
+              <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» DATA E HORA</label>
               <input
                 v-model="form.datetime"
                 type="datetime-local"
                 required
-                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-600 shadow-2xs font-mono"
+                class="retro-input font-mono"
               />
             </div>
 
             <div v-if="formType === 'event'">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">Cor do Evento</label>
+              <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» COR DO EVENTO</label>
               <div class="flex items-center gap-2">
                 <button
-                  v-for="c in ['#4f46e5', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4']"
+                  v-for="c in ['#a66130', '#b07a3b', '#7d5628', '#16a34a', '#dc2626', '#2563eb']"
                   :key="c"
                   type="button"
                   @click="form.color = c"
-                  class="w-7 h-7 rounded-full border-2 transition-transform shadow-2xs cursor-pointer"
+                  class="w-6 h-6 rounded-xs border-2 transition-transform cursor-pointer"
                   :style="{ backgroundColor: c }"
-                  :class="form.color === c ? 'scale-110 border-slate-900' : 'border-white'"
+                  :class="form.color === c ? 'scale-110 border-[#333333]' : 'border-white'"
                 ></button>
               </div>
             </div>
 
-            <div v-if="formType === 'reminder'" class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-100 flex items-center gap-2.5">
+            <div v-if="formType === 'reminder'" class="p-2.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5] flex items-center gap-2">
               <input
                 id="zap"
                 type="checkbox"
                 v-model="form.notify_whatsapp"
-                class="w-4 h-4 rounded text-emerald-600 focus:ring-0 cursor-pointer"
+                class="rounded-xs text-[#a66130] focus:ring-0 cursor-pointer"
               />
-              <label for="zap" class="text-xs font-bold text-emerald-900 flex items-center gap-1.5 cursor-pointer">
-                <BellRing class="w-3.5 h-3.5 text-emerald-600" /> Notificar no grupo do WhatsApp pelo BMO
+              <label for="zap" class="text-xs font-bold font-mono text-[#5f4120] flex items-center gap-1 cursor-pointer">
+                <BellRing class="w-3.5 h-3.5 text-[#a66130]" /> NOTIFICAR NO GRUPO DO WHATSAPP
               </label>
             </div>
-          </div>
 
-          <div class="flex items-center justify-end gap-3 mt-6">
-            <button
-              type="button"
-              @click="isModalOpen = false"
-              class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              class="px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
-              :class="formType === 'event' ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20' : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'"
-            >
-              Salvar
-            </button>
-          </div>
-        </form>
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-[#D8CDC5]">
+              <button
+                type="button"
+                @click="isModalOpen = false"
+                class="retro-button-secondary font-mono text-xs px-3 py-1.5 rounded-xs"
+              >
+                CANCELAR
+              </button>
+              <button
+                type="submit"
+                class="retro-button"
+              >
+                SALVAR
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -335,7 +332,6 @@ import {
   Bell,
   BellRing,
   CheckCircle2,
-  X,
 } from 'lucide-vue-next'
 
 const calendarStore = useCalendarStore()
@@ -346,7 +342,7 @@ const formType = ref<'event' | 'reminder'>('event')
 const form = ref({
   title: '',
   datetime: new Date().toISOString().slice(0, 16),
-  color: '#4f46e5',
+  color: '#a66130',
   notify_whatsapp: true,
 })
 
@@ -386,7 +382,6 @@ const monthDays = computed(() => {
   const cells = []
   const todayKey = new Date().toISOString().slice(0, 10)
 
-  // Prev month padding
   for (let i = startWeekday; i > 0; i--) {
     const d = new Date(year, month, 1 - i)
     const key = d.toISOString().slice(0, 10)
@@ -400,7 +395,6 @@ const monthDays = computed(() => {
     })
   }
 
-  // Current month days
   for (let d = 1; d <= lastDayOfMonth.getDate(); d++) {
     const curDate = new Date(year, month, d)
     const key = curDate.toISOString().slice(0, 10)
@@ -414,7 +408,6 @@ const monthDays = computed(() => {
     })
   }
 
-  // Pad to complete 35 or 42 grid cells
   const remaining = 35 - cells.length
   if (remaining > 0) {
     for (let i = 1; i <= remaining; i++) {
@@ -434,7 +427,6 @@ const monthDays = computed(() => {
   return cells
 })
 
-// Generate Week days
 const weekDays = computed(() => {
   const current = new Date(calendarStore.currentDate)
   let dayOfWeek = current.getDay() - 1

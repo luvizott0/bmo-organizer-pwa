@@ -1,7 +1,7 @@
 <template>
-  <div class="flex h-screen w-screen overflow-hidden bg-[#f8fafc] text-slate-900 font-sans">
+  <div class="flex h-screen w-screen overflow-hidden bg-[#f8f6f1] text-[#333333] font-sans">
     <AppSidebar />
-    <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f8fafc]">
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f8f6f1]">
       <RouterView />
     </main>
   </div>
