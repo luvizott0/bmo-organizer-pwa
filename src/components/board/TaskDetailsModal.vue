@@ -173,26 +173,26 @@
           </div>
         </div>
 
-        <!-- Sandbox Preview Box (when in review) -->
+        <!-- Isolated Task Preview Box (when in review or preview available) -->
         <div
-          v-if="task.status === 'review'"
+          v-if="task.status === 'review' || task.preview_url || task.ai_logs?.preview_url"
           class="p-3.5 rounded-xs bg-[#fdf8f3] border-2 border-[#16a34a] flex items-center justify-between text-xs font-mono"
         >
           <div class="space-y-0.5">
             <div class="font-bold text-[#15803d] flex items-center gap-1.5">
               <Sparkles class="w-4 h-4 text-[#16a34a]" />
-              DISPONÍVEL PARA TESTES NO SANDBOX
+              PREVIEW ISOLADO DA TAREFA
             </div>
             <p class="text-[11px] text-[#847062] font-sans">
-              A feature já foi deployada na branch release e está ativa no ambiente do Homelab.
+              Ambiente de teste dedicado executando a branch diretamente (<code class="text-[#15803d] font-bold">{{ task.task_code.toLowerCase() }}.preview.bmo</code>).
             </p>
           </div>
           <a
-            :href="sandboxUrl"
+            :href="previewUrl"
             target="_blank"
-            class="retro-button text-xs py-1.5 px-3 bg-[#16a34a] hover:bg-[#15803d] border-[#16a34a] text-white shrink-0 flex items-center gap-1"
+            class="retro-button text-xs py-1.5 px-3 bg-[#16a34a] hover:bg-[#15803d] border-[#16a34a] text-white shrink-0 flex items-center gap-1.5 shadow-xs"
           >
-            <span>ABRIR SANDBOX</span>
+            <span>ABRIR PREVIEW</span>
             <ExternalLink class="w-3.5 h-3.5" />
           </a>
         </div>
@@ -282,6 +282,15 @@ const aiLogs = computed<string[]>(() => {
   const logs = props.task?.ai_logs?.logs
   if (Array.isArray(logs)) return logs
   return []
+})
+
+const previewUrl = computed(() => {
+  if (props.task?.preview_url) return props.task.preview_url
+  if (props.task?.ai_logs?.preview_url) return props.task.ai_logs.preview_url
+  if (props.task?.task_code) {
+    return `http://${props.task.task_code.toLowerCase()}.preview.bmo`
+  }
+  return '#'
 })
 
 const sandboxUrl = computed(() => {

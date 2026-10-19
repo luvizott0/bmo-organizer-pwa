@@ -36,8 +36,29 @@ export interface Task {
   ai_logs?: any
   order: number
   due_date?: string | null
-  completed_at?: string | null
+  release_id?: number | null
+  preview_url?: string | null
   project?: Project
+  created_at?: string
+  updated_at?: string
+}
+
+export type ReleaseStatus = 'draft' | 'sandbox' | 'production' | 'cancelled'
+
+export interface Release {
+  id: number
+  workspace_id: number
+  project_id: number
+  version: string
+  title: string
+  description?: string | null
+  status: ReleaseStatus
+  deployed_to_sandbox_at?: string | null
+  deployed_to_production_at?: string | null
+  release_notes?: string | null
+  logs?: string[] | null
+  project?: Project
+  tasks?: Task[]
   created_at?: string
   updated_at?: string
 }

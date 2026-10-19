@@ -143,21 +143,22 @@
               </p>
             </div>
 
-            <!-- Sandbox ready card -->
+            <!-- Isolated Preview ready card -->
             <div
-              v-if="task.status === 'review'"
-              class="mt-2 p-2 rounded-xs bg-[#fdf8f3] border-2 border-[#a66130] text-[11px] text-[#5f4120] flex items-center justify-between font-mono"
+              v-if="task.status === 'review' || task.preview_url || task.ai_logs?.preview_url"
+              class="mt-2 p-2 rounded-xs bg-[#fdf8f3] border-2 border-[#16a34a] text-[11px] text-[#5f4120] flex items-center justify-between font-mono"
             >
-              <span class="flex items-center gap-1 font-bold text-[10px]">
-                <Sparkles class="w-3 h-3 text-[#a66130]" />
-                PRONTO NO SANDBOX
+              <span class="flex items-center gap-1 font-bold text-[10px] text-[#15803d]">
+                <Sparkles class="w-3 h-3 text-[#16a34a]" />
+                PREVIEW PRONTO
               </span>
               <a
-                :href="sandboxUrl"
+                :href="task.preview_url || task.ai_logs?.preview_url || `http://${task.task_code.toLowerCase()}.preview.bmo`"
                 target="_blank"
-                class="font-bold underline text-[#a66130] text-[10px] hover:text-[#7d5628]"
+                @click.stop
+                class="font-bold underline text-[#15803d] text-[10px] hover:text-[#166534]"
               >
-                [ ABRIR .BMO ↗ ]
+                [ TESTAR PREVIEW ↗ ]
               </a>
             </div>
 

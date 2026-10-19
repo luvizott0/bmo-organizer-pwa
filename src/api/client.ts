@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { CalendarEvent, Project, Reminder, Task, TaskStatus } from '@/types'
+import type { CalendarEvent, Project, Release, Reminder, Task, TaskStatus } from '@/types'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -87,4 +87,25 @@ export const remindersApi = {
   update: async (id: number, payload: Partial<Reminder>) =>
     (await api.put<{ data: Reminder }>(`/reminders/${id}`, payload)).data.data,
   delete: async (id: number) => (await api.delete(`/reminders/${id}`)).data,
+}
+
+export const releasesApi = {
+  list: async (params?: { project_id?: number; status?: string }) =>
+    (await api.get<{ data: Release[] }>('/releases', { params })).data.data,
+  get: async (id: number) =>
+    (await api.get<{ data: Release }>(`/releases/${id}`)).data.data,
+  create: async (payload: {
+    project_id: number
+    version: string
+    title: string
+    description?: string
+    task_ids?: number[]
+  }) => (await api.post<{ data: Release }>('/releases', payload)).data.data,
+  update: async (id: number, payload: Partial<Release> & { task_ids?: number[] }) =>
+    (await api.put<{ data: Release }>(`/releases/${id}`, payload)).data.data,
+  delete: async (id: number) => (await api.delete(`/releases/${id}`)).data,
+  deploySandbox: async (id: number) =>
+    (await api.post<{ message: string; result: any; release: Release }>(`/releases/${id}/deploy-sandbox`)).data,
+  deployProduction: async (id: number) =>
+    (await api.post<{ message: string; result: any; release: Release }>(`/releases/${id}/deploy-production`)).data,
 }

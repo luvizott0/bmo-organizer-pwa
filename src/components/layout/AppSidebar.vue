@@ -51,6 +51,17 @@
           <FolderGit2 class="w-4 h-4" />
           <span>Projetos</span>
         </RouterLink>
+
+        <RouterLink
+          to="/releases"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-xs font-mono text-xs font-bold uppercase transition-all duration-150 border"
+          :class="$route.path === '/releases'
+            ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
+            : 'bg-[#f8f6f1] text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5] hover:text-[#422d16]'"
+        >
+          <Rocket class="w-4 h-4" />
+          <span>Releases & Deploy</span>
+        </RouterLink>
       </nav>
 
       <!-- Projects Section -->
@@ -108,7 +119,7 @@
 <script setup lang="ts">
 import { useProjectsStore } from '@/stores/projects'
 import { useRouter } from 'vue-router'
-import { KanbanSquare, CalendarDays, FolderGit2 } from 'lucide-vue-next'
+import { KanbanSquare, CalendarDays, FolderGit2, Rocket } from 'lucide-vue-next'
 
 const projectsStore = useProjectsStore()
 const router = useRouter()
