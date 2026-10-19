@@ -59,7 +59,9 @@
             :key="task.id"
             draggable="true"
             @dragstart="onDragStart(task)"
-            class="p-3 bg-white border-2 border-[#D8CDC5] rounded-xs shadow-xs hover:border-[#a66130] hover:shadow-sm transition-all duration-150 cursor-grab active:cursor-grabbing"
+            @click="openTaskDetails(task)"
+            class="p-3 bg-white border-2 border-[#D8CDC5] rounded-xs shadow-xs hover:border-[#a66130] hover:shadow-sm transition-all duration-150 cursor-pointer"
+
           >
             <!-- Card Header: Code & Badges -->
             <div class="flex items-center justify-between mb-2">
@@ -327,14 +329,25 @@
         </form>
       </div>
     </div>
+
+    <!-- Task Details & AI Execution Logs Modal -->
+
+    <TaskDetailsModal
+      :is-open="isDetailsModalOpen"
+      :task="selectedTaskForModal"
+      @close="isDetailsModalOpen = false"
+      @update-status="handleModalStatusChange"
+    />
   </div>
 </template>
 
+
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useProjectsStore } from '@/stores/projects'
 import type { Task, TaskStatus } from '@/types'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import TaskDetailsModal from '@/components/board/TaskDetailsModal.vue'
 import {
   Plus,
   Bot,
@@ -348,8 +361,55 @@ import {
   Loader2,
 } from 'lucide-vue-next'
 
-
 const projectsStore = useProjectsStore()
+
+const selectedTaskForModal = ref<Task | null>(null)
+const isDetailsModalOpen = ref(false)
+
+function openTaskDetails(task: Task) {
+  selectedTaskForModal.value = task
+  isDetailsModalOpen.value = true
+}
+
+async function handleModalStatusChange(taskId: number, newStatus: TaskStatus) {
+  await projectsStore.updateTaskStatus(taskId, newStatus)
+  const found = projectsStore.tasks.find((t) => t.id === taskId)
+  if (found) {
+    selectedTaskForModal.value = found
+  }
+}
+
+// Keep selectedTaskForModal in sync with store tasks
+watch(
+  () => projectsStore.tasks,
+  (newTasks) => {
+    if (selectedTaskForModal.value) {
+      const updated = newTasks.find((t) => t.id === selectedTaskForModal.value?.id)
+      if (updated) {
+        selectedTaskForModal.value = updated
+      }
+    }
+  },
+  { deep: true }
+)
+
+// Auto-refresh tasks every 4s if any AI task is in progress
+let pollInterval: any = null
+onMounted(() => {
+  pollInterval = setInterval(async () => {
+    const hasActiveAiTask = projectsStore.tasks.some(
+      (t) => t.status === 'in_progress' && t.assignee_type === 'ai'
+    )
+    if (hasActiveAiTask) {
+      await projectsStore.loadTasks()
+    }
+  }, 4000)
+})
+
+onUnmounted(() => {
+  if (pollInterval) clearInterval(pollInterval)
+})
+
 
 const columns: { id: TaskStatus; title: string; headerColor: string }[] = [
   { id: 'backlog', title: 'BACKLOG', headerColor: '#847062' },
