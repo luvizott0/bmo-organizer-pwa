@@ -1,0 +1,73 @@
+export type TaskStatus = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done'
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
+export type AssigneeType = 'user' | 'ai'
+
+export interface Project {
+  id: number
+  workspace_id: number
+  name: string
+  prefix: string
+  description?: string | null
+  github_repo?: string | null
+  local_path?: string | null
+  base_branch?: string
+  test_command?: string | null
+  instructions_file?: string
+  color: string
+  last_task_number: number
+  is_active: boolean
+  tasks_count?: number
+  created_at?: string
+  updated_at?: string
+}
+
+export interface Task {
+  id: number
+  workspace_id: number
+  project_id: number
+  task_code: string
+  task_number: number
+  title: string
+  description?: string | null
+  status: TaskStatus
+  priority: TaskPriority
+  branch_name?: string | null
+  assignee_type: AssigneeType
+  ai_logs?: any
+  order: number
+  due_date?: string | null
+  completed_at?: string | null
+  project?: Project
+  created_at?: string
+  updated_at?: string
+}
+
+export interface CalendarEvent {
+  id: number
+  workspace_id: number
+  title: string
+  description?: string | null
+  start_at: string
+  end_at?: string | null
+  all_day: boolean
+  category: 'routine' | 'house' | 'work' | 'personal' | string
+  color: string
+  location?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface Reminder {
+  id: number
+  workspace_id: number
+  title: string
+  due_at: string
+  is_completed: boolean
+  completed_at?: string | null
+  category: string
+  recurrence: 'none' | 'daily' | 'weekly' | 'monthly'
+  notify_whatsapp: boolean
+  last_notified_at?: string | null
+  created_at?: string
+  updated_at?: string
+}
