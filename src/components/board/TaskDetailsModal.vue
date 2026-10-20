@@ -11,18 +11,130 @@
           <span class="font-mono font-bold text-sm bg-white/20 px-2 py-0.5 rounded-xs">
             {{ task.task_code }}
           </span>
-          <span class="truncate text-xs font-mono uppercase tracking-wider">DETALHES DA TAREFA</span>
+          <span class="truncate text-xs font-mono uppercase tracking-wider">
+            {{ isEditing ? 'EDITAR TAREFA' : 'DETALHES DA TAREFA' }}
+          </span>
         </div>
-        <button
-          @click="$emit('close')"
-          class="text-white/80 hover:text-white cursor-pointer font-mono font-bold px-1.5 py-0.5 rounded-xs hover:bg-white/10 transition-colors"
-        >
-          [X]
-        </button>
+        <div class="flex items-center gap-1.5">
+          <template v-if="!isEditing">
+            <button
+              @click="startEditing"
+              class="text-xs font-mono font-bold px-2 py-0.5 rounded-xs bg-white/20 hover:bg-white/30 text-white flex items-center gap-1 cursor-pointer transition-colors"
+              title="Editar tarefa"
+            >
+              <Pencil class="w-3 h-3" />
+              <span>EDITAR</span>
+            </button>
+            <button
+              @click="promptDelete"
+              class="text-xs font-mono font-bold px-2 py-0.5 rounded-xs bg-[#dc2626]/80 hover:bg-[#dc2626] text-white flex items-center gap-1 cursor-pointer transition-colors"
+              title="Excluir tarefa"
+            >
+              <Trash2 class="w-3 h-3" />
+              <span>EXCLUIR</span>
+            </button>
+          </template>
+          <button
+            @click="$emit('close')"
+            class="text-white/80 hover:text-white cursor-pointer font-mono font-bold px-1.5 py-0.5 rounded-xs hover:bg-white/10 transition-colors ml-1"
+          >
+            [X]
+          </button>
+        </div>
       </div>
 
-      <!-- Modal Body -->
-      <div class="p-6 space-y-5 max-h-[80vh] overflow-y-auto font-sans">
+      <!-- Edit Mode Form -->
+      <form v-if="isEditing" @submit.prevent="saveEditing" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto font-sans">
+        <div>
+          <label class="block text-xs font-mono font-bold text-[#422d16] mb-1">
+            TÍTULO DA TAREFA ::
+          </label>
+          <input
+            v-model="editForm.title"
+            type="text"
+            required
+            class="retro-input w-full font-mono text-xs"
+            placeholder="Ex: Adicionar endpoint de listagem"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-mono font-bold text-[#422d16] mb-1">
+              TIPO ::
+            </label>
+            <select v-model="editForm.type" class="retro-input w-full font-mono text-xs cursor-pointer">
+              <option value="feature">✨ Feature</option>
+              <option value="bugfix">🐛 Bugfix</option>
+              <option value="hotfix">🔥 Hotfix</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono font-bold text-[#422d16] mb-1">
+              PRIORIDADE ::
+            </label>
+            <select v-model="editForm.priority" class="retro-input w-full font-mono text-xs cursor-pointer">
+              <option value="low">Baixa</option>
+              <option value="medium">Média</option>
+              <option value="high">Alta</option>
+              <option value="urgent">Urgente</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono font-bold text-[#422d16] mb-1">
+              COLUNA (STATUS) ::
+            </label>
+            <select v-model="editForm.status" class="retro-input w-full font-mono text-xs cursor-pointer">
+              <option value="todo">A Fazer</option>
+              <option value="in_progress">Em Progresso</option>
+              <option value="review">Em Revisão</option>
+              <option value="reviewed">Revisado</option>
+              <option value="done">Concluído</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-mono font-bold text-[#422d16] mb-1">
+              RESPONSÁVEL ::
+            </label>
+            <select v-model="editForm.assignee_type" class="retro-input w-full font-mono text-xs cursor-pointer">
+              <option value="ai">🤖 Agente de IA</option>
+              <option value="user">👤 Manual (Dev)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono font-bold text-[#422d16] mb-1">
+              ESCOPO DO REPOSITÓRIO ::
+            </label>
+            <select v-model="editForm.target_scope" class="retro-input w-full font-mono text-xs cursor-pointer">
+              <option value="auto">⚡ Auto (IA Detecta)</option>
+              <option value="backend">⚙️ Backend (API)</option>
+              <option value="frontend">💻 Frontend (PWA)</option>
+              <option value="fullstack">🌐 Fullstack (Ambos)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono font-bold text-[#422d16] mb-1">
+            DESCRIÇÃO / ESPECIFICAÇÃO ::
+          </label>
+          <textarea
+            v-model="editForm.description"
+            rows="6"
+            class="retro-input w-full text-xs font-sans"
+            placeholder="Descreva os requisitos e detalhes da tarefa..."
+          ></textarea>
+        </div>
+      </form>
+
+      <!-- View Mode Body -->
+      <div v-else class="p-6 space-y-5 max-h-[80vh] overflow-y-auto font-sans">
         <!-- Title and Badges -->
         <div>
           <div class="flex items-center gap-2 mb-2 flex-wrap">
@@ -98,95 +210,79 @@
           <div class="p-2.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5] space-y-1.5">
             <span class="text-[10px] text-[#847062] block font-bold">REPOSITÓRIOS VINCULADOS</span>
             <div v-if="task.project?.backend_repo" class="text-[11px] truncate flex items-center gap-1">
-              <span class="px-1 py-0.2 bg-[#2563eb]/10 text-[#2563eb] font-bold rounded-2xs text-[9px]">API</span>
-              <span class="truncate text-[#5f4120]">{{ task.project.backend_repo }}</span>
+              <span class="text-[#1d4ed8] font-bold">API:</span>
+              <span class="truncate">{{ task.project.backend_repo }}</span>
             </div>
             <div v-if="task.project?.frontend_repo" class="text-[11px] truncate flex items-center gap-1">
-              <span class="px-1 py-0.2 bg-[#16a34a]/10 text-[#16a34a] font-bold rounded-2xs text-[9px]">PWA</span>
-              <span class="truncate text-[#5f4120]">{{ task.project.frontend_repo }}</span>
+              <span class="text-[#15803d] font-bold">PWA:</span>
+              <span class="truncate">{{ task.project.frontend_repo }}</span>
             </div>
-            <a
-              v-if="!task.project?.backend_repo && !task.project?.frontend_repo && task.project?.github_repo"
-              :href="`https://github.com/${task.project.github_repo}`"
-              target="_blank"
-              class="text-[#a66130] hover:underline flex items-center gap-1 font-bold truncate"
-            >
-              <Github class="w-3.5 h-3.5 shrink-0" />
+            <div v-if="!task.project?.backend_repo && !task.project?.frontend_repo && task.project?.github_repo" class="text-[11px] truncate flex items-center gap-1">
+              <Github class="w-3 h-3 text-[#847062]" />
               <span class="truncate">{{ task.project.github_repo }}</span>
-              <ExternalLink class="w-3 h-3 shrink-0" />
-            </a>
+            </div>
           </div>
 
-          <!-- Git Branches -->
-          <div class="p-2.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5] space-y-1">
-            <span class="text-[10px] text-[#847062] block font-bold">BRANCHES GIT</span>
-            <div class="flex items-center justify-between gap-1">
-              <span class="truncate text-[#5f4120] font-bold text-[11px]">
-                {{ task.branch_name || 'feat/' + task.task_code }}
+          <!-- Base Branches -->
+          <div class="p-2.5 rounded-xs bg-[#f8f6f1] border border-[#D8CDC5] space-y-1.5">
+            <span class="text-[10px] text-[#847062] block font-bold">BRANCH BASE DE MERGE</span>
+            <div class="text-[11px] flex items-center gap-1.5 text-[#422d16]">
+              <GitBranch class="w-3.5 h-3.5 text-[#a66130]" />
+              <span class="font-bold">
+                {{ task.type === 'hotfix' ? 'main' : (task.project?.base_branch || 'develop') }}
               </span>
-              <button
-                @click="copyText(task.branch_name || 'feat/' + task.task_code)"
-                class="hover:text-[#a66130] p-1 rounded-xs transition-colors cursor-pointer shrink-0"
-                title="Copiar branch"
-              >
-                <Check v-if="copied" class="w-3.5 h-3.5 text-[#16a34a]" />
-                <Copy v-else class="w-3.5 h-3.5" />
-              </button>
+              <span v-if="task.type === 'hotfix'" class="text-[9px] text-[#dc2626] font-bold">
+                [PRODUÇÃO DIRETA]
+              </span>
             </div>
           </div>
         </div>
 
-        <!-- AI Progress & Live Logs Section -->
-        <div v-if="task.assignee_type === 'ai'" class="space-y-3 pt-2 border-t border-[#D8CDC5]">
+        <!-- Git Feature Branch Info -->
+        <div v-if="task.branch_name" class="p-3 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5] text-xs font-mono space-y-2">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold font-mono text-[#5f4120] flex items-center gap-1.5">
-              <Bot class="w-4 h-4 text-[#a66130]" />
-              PAINEL DE EXECUÇÃO DO AGENTE DE IA
-            </h3>
+            <span class="text-[10px] font-bold text-[#847062] uppercase tracking-wider flex items-center gap-1.5">
+              <GitBranch class="w-3.5 h-3.5 text-[#a66130]" />
+              Branch de Desenvolvimento
+            </span>
+            <button
+              @click="copyText(task.branch_name)"
+              class="text-[10px] font-bold text-[#a66130] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <Copy class="w-3 h-3" />
+              <span>{{ copied ? 'COPIADO!' : 'COPIAR' }}</span>
+            </button>
+          </div>
+          <div class="p-2 rounded-xs bg-[#ffffff] border border-[#D8CDC5] text-[#422d16] font-bold break-all select-all">
+            {{ task.branch_name }}
+          </div>
+        </div>
+
+        <!-- AI Agent Terminal Logs -->
+        <div v-if="task.assignee_type === 'ai'" class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-mono font-bold text-[#847062] uppercase tracking-wider flex items-center gap-1.5">
+              <Terminal class="w-3.5 h-3.5 text-[#a66130]" />
+              Progresso do Agente Autônomo
+            </span>
             <span
               v-if="task.status === 'in_progress'"
-              class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-xs bg-[#fdf8f3] text-[#a66130] border border-[#a66130] flex items-center gap-1 animate-pulse"
+              class="text-[10px] font-mono text-[#a66130] font-bold flex items-center gap-1 animate-pulse"
             >
               <Loader2 class="w-3 h-3 animate-spin" />
-              EM EXECUÇÃO
-            </span>
-            <span
-              v-else-if="task.status === 'review' || task.status === 'done'"
-              class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-xs bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0] flex items-center gap-1"
-            >
-              <CheckCircle2 class="w-3 h-3" />
-              FINALIZADO
+              EXECUTANDO NO SANDBOX...
             </span>
           </div>
 
-          <!-- AI Summary Box -->
-          <div
-            v-if="aiSummary"
-            class="p-3.5 rounded-xs bg-[#fdf8f3] border-2 border-[#a66130] space-y-1.5 shadow-2xs"
-          >
-            <div class="flex items-center gap-1.5 text-xs font-mono font-bold text-[#a66130]">
-              <Sparkles class="w-3.5 h-3.5" />
-              RESUMO DA IMPLEMENTAÇÃO (GEMINI):
+          <div class="retro-card p-3 bg-[#1e1e1e] text-[#d4d4d4] font-mono text-[11px] rounded-xs border-2 border-[#333333] shadow-inner max-h-56 overflow-y-auto space-y-1.5">
+            <div v-if="aiSummary" class="text-[#a6e22e] font-bold border-b border-[#333333] pb-1.5 mb-1.5">
+              » {{ aiSummary }}
             </div>
-            <p class="text-xs text-[#422d16] leading-relaxed">
-              {{ aiSummary }}
-            </p>
-          </div>
-
-          <!-- Terminal Output / Execution Logs -->
-          <div class="rounded-xs overflow-hidden border-2 border-[#1a1410] shadow-sm">
-            <div class="bg-[#1a1410] px-3 py-1.5 flex items-center justify-between text-[11px] font-mono text-[#a8a29e]">
-              <div class="flex items-center gap-2">
-                <Terminal class="w-3.5 h-3.5 text-[#a66130]" />
-                <span class="font-bold text-white">bmo-ai-worker.log</span>
-              </div>
-              <span class="text-[10px] text-[#78716c]">FastAPI + Gemini REST</span>
-            </div>
-            <div class="bg-[#0f0c0a] p-3 text-xs font-mono text-[#4ade80] max-h-48 overflow-y-auto space-y-1 leading-relaxed">
+            <div class="space-y-1">
               <template v-if="aiLogs.length > 0">
-                <div v-for="(log, idx) in aiLogs" :key="idx" class="flex gap-2">
-                  <span class="text-[#78716c] select-none text-[11px]">&gt;</span>
-                  <span>{{ log }}</span>
+                <div v-for="(log, i) in aiLogs" :key="i" class="leading-relaxed">
+                  <span class="text-[#66d9ef] select-none">➜ </span>
+                  <span class="text-[#f8f8f2]">{{ log }}</span>
                 </div>
               </template>
               <div v-else class="text-[#78716c] italic">
@@ -196,7 +292,7 @@
           </div>
         </div>
 
-        <!-- Isolated Task Preview Box (when in review or preview available) -->
+        <!-- Isolated Task Preview Box -->
         <div
           v-if="task.status === 'review' || task.preview_url || task.ai_logs?.preview_url"
           class="p-3.5 rounded-xs bg-[#fdf8f3] border-2 border-[#16a34a] flex items-center justify-between text-xs font-mono"
@@ -222,7 +318,26 @@
       </div>
 
       <!-- Modal Actions Footer -->
-      <div class="p-4 bg-[#fdf8f3] border-t-2 border-[#D8CDC5] flex items-center justify-between font-mono text-xs">
+      <div v-if="isEditing" class="p-4 bg-[#fdf8f3] border-t-2 border-[#D8CDC5] flex items-center justify-between font-mono text-xs">
+        <button
+          type="button"
+          @click="cancelEditing"
+          class="retro-button-secondary py-1.5 px-3"
+        >
+          CANCELAR
+        </button>
+        <button
+          type="button"
+          @click="saveEditing"
+          :disabled="saving"
+          class="retro-button py-1.5 px-4 flex items-center gap-1.5"
+        >
+          <Check class="w-3.5 h-3.5" />
+          <span>{{ saving ? 'SALVANDO...' : 'SALVAR ALTERAÇÕES' }}</span>
+        </button>
+      </div>
+
+      <div v-else class="p-4 bg-[#fdf8f3] border-t-2 border-[#D8CDC5] flex items-center justify-between font-mono text-xs">
         <div>
           <button
             @click="$emit('close')"
@@ -278,33 +393,113 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import type { Task, TaskStatus } from '@/types'
+import { ref, computed, watch } from 'vue'
+import type { Task, TaskStatus, TaskType, TaskPriority, TargetScope, AssigneeType } from '@/types'
+import { useProjectsStore } from '@/stores/projects'
 import {
   Bot,
   Github,
   GitBranch,
   Copy,
   Check,
-  CheckCircle2,
   Sparkles,
   ExternalLink,
   Terminal,
   Loader2,
   Play,
+  Pencil,
+  Trash2,
 } from 'lucide-vue-next'
 
 const props = defineProps<{
   isOpen: boolean
   task: Task | null
+  initEdit?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'update-status', taskId: number, newStatus: TaskStatus): void
+  (e: 'delete', task: Task): void
 }>()
 
+const projectsStore = useProjectsStore()
+
 const copied = ref(false)
+const isEditing = ref(false)
+const saving = ref(false)
+
+const editForm = ref({
+  title: '',
+  description: '',
+  type: 'feature' as TaskType,
+  priority: 'medium' as TaskPriority,
+  status: 'todo' as TaskStatus,
+  target_scope: 'auto' as TargetScope,
+  assignee_type: 'ai' as AssigneeType,
+})
+
+watch(
+  () => props.task,
+  (newTask) => {
+    if (newTask && props.initEdit) {
+      startEditing()
+    } else {
+      isEditing.value = false
+    }
+  },
+  { immediate: true }
+)
+
+function startEditing() {
+  if (!props.task) return
+  editForm.value = {
+    title: props.task.title,
+    description: props.task.description || '',
+    type: (props.task.type || 'feature') as TaskType,
+    priority: (props.task.priority || 'medium') as TaskPriority,
+    status: props.task.status === 'backlog' ? 'todo' : props.task.status,
+    target_scope: (props.task.target_scope || 'auto') as TargetScope,
+    assignee_type: props.task.assignee_type || 'ai',
+  }
+  isEditing.value = true
+}
+
+function cancelEditing() {
+  isEditing.value = false
+}
+
+async function saveEditing() {
+  if (!props.task) return
+  if (!editForm.value.title.trim()) {
+    alert('O título da tarefa é obrigatório.')
+    return
+  }
+
+  try {
+    saving.value = true
+    await projectsStore.updateTask(props.task.id, {
+      title: editForm.value.title.trim(),
+      description: editForm.value.description.trim() || null,
+      type: editForm.value.type,
+      priority: editForm.value.priority,
+      status: editForm.value.status,
+      target_scope: editForm.value.target_scope,
+      assignee_type: editForm.value.assignee_type,
+    })
+    isEditing.value = false
+  } catch (err: any) {
+    alert(`Erro ao salvar tarefa: ${err?.message || 'Falha na requisição'}`)
+  } finally {
+    saving.value = false
+  }
+}
+
+function promptDelete() {
+  if (props.task) {
+    emit('delete', props.task)
+  }
+}
 
 const aiSummary = computed(() => {
   return props.task?.ai_logs?.summary || null
@@ -323,13 +518,6 @@ const previewUrl = computed(() => {
     return `http://${props.task.task_code.toLowerCase()}.preview.bmo`
   }
   return '#'
-})
-
-const sandboxUrl = computed(() => {
-  const prefix = props.task?.project?.prefix
-  if (prefix === 'CST') return 'http://capyshowtime.bmo'
-  if (prefix === 'CPH') return 'http://capihouse.bmo'
-  return 'http://organizer.bmo'
 })
 
 function copyText(text: string) {

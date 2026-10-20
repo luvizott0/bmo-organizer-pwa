@@ -65,9 +65,25 @@
           >
             <!-- Card Header: Code & Badges -->
             <div class="flex items-center justify-between mb-2">
-              <span class="font-mono text-xs font-bold text-[#a66130] px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5]">
-                {{ task.task_code }}
-              </span>
+              <div class="flex items-center gap-1.5">
+                <span class="font-mono text-xs font-bold text-[#a66130] px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5]">
+                  {{ task.task_code }}
+                </span>
+                <button
+                  @click.stop="openTaskDetails(task, true)"
+                  class="text-[#847062] hover:text-[#a66130] p-0.5 rounded-xs hover:bg-[#f8f6f1] transition-colors cursor-pointer"
+                  title="Editar tarefa"
+                >
+                  <Pencil class="w-3 h-3" />
+                </button>
+                <button
+                  @click.stop="promptDeleteTask(task)"
+                  class="text-[#847062] hover:text-[#dc2626] p-0.5 rounded-xs hover:bg-[#fef2f2] transition-colors cursor-pointer"
+                  title="Excluir tarefa"
+                >
+                  <Trash2 class="w-3 h-3" />
+                </button>
+              </div>
 
               <div class="flex items-center gap-1.5">
                 <span
@@ -182,20 +198,8 @@
 
             <!-- Card Action Footer -->
             <div class="mt-2.5 pt-2 border-t border-[#D8CDC5] flex items-center justify-between">
-              <!-- Backlog -> To Do -->
-              <template v-if="task.status === 'backlog'">
-                <span class="text-[10px] font-mono text-[#847062]">[BACKLOG]</span>
-                <button
-                  @click.stop="projectsStore.updateTaskStatus(task.id, 'todo')"
-                  class="retro-button-secondary text-[10px] py-1 px-2 border border-[#D8CDC5] bg-white hover:bg-[#e8c9a5] cursor-pointer"
-                  title="Mover para A Fazer"
-                >
-                  <span>PRIORIZAR ➔</span>
-                </button>
-              </template>
-
               <!-- To Do -> In Progress -->
-              <template v-else-if="task.status === 'todo'">
+              <template v-if="task.status === 'todo' || task.status === 'backlog'">
                 <span class="text-[10px] font-mono text-[#847062]">[A FAZER]</span>
                 <button
                   @click.stop="projectsStore.updateTaskStatus(task.id, 'in_progress')"
@@ -373,9 +377,77 @@
     <TaskDetailsModal
       :is-open="isDetailsModalOpen"
       :task="selectedTaskForModal"
+      :init-edit="initEditModal"
       @close="isDetailsModalOpen = false"
       @update-status="handleModalStatusChange"
+      @delete="handleDeleteFromModal"
     />
+
+    <!-- Retro Delete Confirmation Modal -->
+    <div
+      v-if="isDeleteModalOpen && taskToDelete"
+      class="fixed inset-0 z-50 bg-black/50 backdrop-blur-2xs flex items-center justify-center p-4 select-none"
+      @click.self="isDeleteModalOpen = false"
+    >
+      <div class="w-full max-w-md retro-card shadow-2xl p-0 text-[#333333] bg-white overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <!-- Header -->
+        <div class="retro-card-header bg-[#dc2626] text-white flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <Trash2 class="w-4 h-4" />
+            <span class="font-mono text-xs font-bold uppercase tracking-wider">CONFIRMAR EXCLUSÃO</span>
+          </div>
+          <button
+            @click="isDeleteModalOpen = false"
+            class="text-white/80 hover:text-white cursor-pointer font-mono font-bold px-1.5 py-0.5 rounded-xs hover:bg-white/10"
+          >
+            [X]
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 space-y-4 font-sans text-center">
+          <div class="w-12 h-12 rounded-full bg-[#fef2f2] border-2 border-[#fecaca] text-[#dc2626] flex items-center justify-center mx-auto">
+            <AlertTriangle class="w-6 h-6" />
+          </div>
+
+          <div>
+            <h3 class="font-mono text-sm font-bold text-[#422d16] mb-1">
+              Excluir tarefa [{{ taskToDelete.task_code }}]?
+            </h3>
+            <p class="text-xs text-[#847062] font-mono font-semibold px-4 line-clamp-2">
+              "{{ taskToDelete.title }}"
+            </p>
+          </div>
+
+          <div class="p-3 bg-[#fdf8f3] border border-[#D8CDC5] rounded-xs text-[11px] text-[#847062] text-left space-y-1 font-mono">
+            <div>⚠️ <span class="font-bold text-[#dc2626]">Atenção:</span> Esta ação é permanente.</div>
+            <div>• A tarefa será removida do Kanban do BMO.</div>
+            <div>• Quaisquer branches de teste vinculadas deixarão de ser associadas.</div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 bg-[#fdf8f3] border-t-2 border-[#D8CDC5] flex items-center justify-end gap-2.5 font-mono text-xs">
+          <button
+            type="button"
+            @click="isDeleteModalOpen = false"
+            class="retro-button-secondary py-1.5 px-3 cursor-pointer"
+          >
+            CANCELAR
+          </button>
+          <button
+            type="button"
+            @click="confirmDeleteTask"
+            :disabled="isDeleting"
+            class="retro-button py-1.5 px-4 bg-[#dc2626] hover:bg-[#b91c1c] border-[#dc2626] text-white flex items-center gap-1.5 cursor-pointer"
+          >
+            <Loader2 v-if="isDeleting" class="w-3.5 h-3.5 animate-spin" />
+            <Trash2 v-else class="w-3.5 h-3.5" />
+            <span>{{ isDeleting ? 'EXCLUINDO...' : 'SIM, EXCLUIR TAREFA' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -397,16 +469,50 @@ import {
   Check,
   CheckCircle2,
   Loader2,
+  Pencil,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-vue-next'
 
 const projectsStore = useProjectsStore()
 
 const selectedTaskForModal = ref<Task | null>(null)
 const isDetailsModalOpen = ref(false)
+const initEditModal = ref(false)
 
-function openTaskDetails(task: Task) {
+const taskToDelete = ref<Task | null>(null)
+const isDeleteModalOpen = ref(false)
+const isDeleting = ref(false)
+
+function openTaskDetails(task: Task, startEdit = false) {
   selectedTaskForModal.value = task
+  initEditModal.value = startEdit
   isDetailsModalOpen.value = true
+}
+
+function promptDeleteTask(task: Task) {
+  taskToDelete.value = task
+  isDeleteModalOpen.value = true
+}
+
+function handleDeleteFromModal(task: Task) {
+  isDetailsModalOpen.value = false
+  promptDeleteTask(task)
+}
+
+async function confirmDeleteTask() {
+  if (!taskToDelete.value) return
+
+  try {
+    isDeleting.value = true
+    await projectsStore.deleteTask(taskToDelete.value.id)
+    isDeleteModalOpen.value = false
+    taskToDelete.value = null
+  } catch (err: any) {
+    alert(`Erro ao excluir tarefa: ${err?.message || 'Falha na requisição'}`)
+  } finally {
+    isDeleting.value = false
+  }
 }
 
 async function handleModalStatusChange(taskId: number, newStatus: TaskStatus) {
@@ -450,7 +556,6 @@ onUnmounted(() => {
 
 
 const columns: { id: TaskStatus; title: string; headerColor: string }[] = [
-  { id: 'backlog', title: 'BACKLOG', headerColor: '#847062' },
   { id: 'todo', title: 'A FAZER', headerColor: '#a66130' },
   { id: 'in_progress', title: 'EM PROGRESSO', headerColor: '#b07a3b' },
   { id: 'review', title: 'EM REVISÃO', headerColor: '#7d5628' },

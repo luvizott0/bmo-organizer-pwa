@@ -29,7 +29,9 @@ export const useProjectsStore = defineStore('projects', () => {
       done: [],
     }
     filteredTasks.value.forEach((task) => {
-      if (map[task.status]) {
+      if (task.status === 'backlog') {
+        map.todo.push(task)
+      } else if (map[task.status]) {
         map[task.status].push(task)
       } else {
         map.todo.push(task)
@@ -120,6 +122,20 @@ export const useProjectsStore = defineStore('projects', () => {
     }
   }
 
+  async function updateTask(id: number, payload: Partial<Task>) {
+    const updated = await tasksApi.update(id, payload)
+    const idx = tasks.value.findIndex((t) => t.id === id)
+    if (idx !== -1) {
+      tasks.value[idx] = { ...tasks.value[idx], ...updated }
+    }
+    return updated
+  }
+
+  async function deleteTask(id: number) {
+    await tasksApi.delete(id)
+    tasks.value = tasks.value.filter((t) => t.id !== id)
+  }
+
   return {
     projects,
     tasks,
@@ -134,6 +150,9 @@ export const useProjectsStore = defineStore('projects', () => {
     updateProject,
     deleteProject,
     addTask,
+    updateTask,
+    deleteTask,
     updateTaskStatus,
   }
 })
+

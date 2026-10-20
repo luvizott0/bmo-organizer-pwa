@@ -120,3 +120,17 @@ export interface Workspace {
   role?: string
 }
 
+export interface QuotaLimit {
+  label?: string
+  remaining_percentage: number
+  reset_time: string
+}
+
+export interface QuotaStatus {
+  user_tier: string
+  limit_5h: QuotaLimit | null
+  limit_weekly: QuotaLimit | null
+  updated_at: string | null
+  models?: Record<string, { remaining_percentage: number; reset_time: string }>
+}
+

@@ -110,3 +110,7 @@ export const releasesApi = {
   deployProduction: async (id: number) =>
     (await api.post<{ message: string; result: any; release: Release }>(`/releases/${id}/deploy-production`)).data,
 }
+
+export const systemApi = {
+  getQuota: async () => (await api.get<import('@/types').QuotaStatus>('/system/quota')).data,
+}
