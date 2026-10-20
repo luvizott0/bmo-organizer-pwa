@@ -11,12 +11,16 @@
       <RouterView />
     </main>
   </div>
+
+  <!-- Global Retro Modal & Alerts System -->
+  <AppModalDialog />
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
+import AppModalDialog from '@/components/common/AppModalDialog.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useProjectsStore } from '@/stores/projects'
 import { useCalendarStore } from '@/stores/calendar'

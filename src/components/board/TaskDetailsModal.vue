@@ -510,6 +510,7 @@
 import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import type { Task, TaskStatus, TaskType, TaskPriority, TargetScope, AssigneeType, TaskComment } from '@/types'
 import { useProjectsStore } from '@/stores/projects'
+import { useModalStore } from '@/stores/modal'
 import { taskCommentsApi, tasksApi } from '@/api/client'
 import {
   Bot,
@@ -544,6 +545,7 @@ const emit = defineEmits<{
 }>()
 
 const projectsStore = useProjectsStore()
+const modalStore = useModalStore()
 
 const copied = ref(false)
 const isEditing = ref(false)
@@ -657,7 +659,7 @@ function cancelEditing() {
 async function saveEditing() {
   if (!props.task) return
   if (!editForm.value.title.trim()) {
-    alert('O título da tarefa é obrigatório.')
+    await modalStore.warning('Título Obrigatório', 'Por favor, informe o título da tarefa antes de salvar.')
     return
   }
 
@@ -674,7 +676,7 @@ async function saveEditing() {
     })
     isEditing.value = false
   } catch (err: any) {
-    alert(`Erro ao salvar tarefa: ${err?.message || 'Falha na requisição'}`)
+    await modalStore.error('Erro ao Salvar Tarefa', err?.response?.data?.message || err?.message || 'Falha na requisição.')
   } finally {
     saving.value = false
   }
@@ -811,7 +813,7 @@ async function submitComment() {
     taskComments.value.push(comment)
     newCommentText.value = ''
   } catch (err: any) {
-    alert(`Erro ao adicionar comentário: ${err?.response?.data?.message || err?.message || 'Falha na requisição'}`)
+    await modalStore.error('Erro ao Adicionar Comentário', err?.response?.data?.message || err?.message || 'Falha na requisição.')
   } finally {
     submittingComment.value = false
   }
@@ -819,13 +821,20 @@ async function submitComment() {
 
 async function deleteComment(commentId: number) {
   if (!props.task) return
-  if (!confirm('Deseja realmente remover este comentário?')) return
+  const confirmed = await modalStore.confirm({
+    title: 'Excluir Comentário',
+    message: 'Deseja realmente remover este comentário da tarefa?',
+    type: 'danger',
+    confirmText: 'EXCLUIR',
+    cancelText: 'CANCELAR',
+  })
+  if (!confirmed) return
 
   try {
     await taskCommentsApi.delete(props.task.id, commentId)
     taskComments.value = taskComments.value.filter((c) => c.id !== commentId)
   } catch (err: any) {
-    alert(`Erro ao excluir comentário: ${err?.response?.data?.message || err?.message || 'Falha na requisição'}`)
+    await modalStore.error('Erro ao Excluir Comentário', err?.response?.data?.message || err?.message || 'Falha na requisição.')
   }
 }
 

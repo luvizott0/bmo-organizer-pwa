@@ -457,6 +457,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useProjectsStore } from '@/stores/projects'
+import { useModalStore } from '@/stores/modal'
 import type { Task, TaskStatus } from '@/types'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import TaskDetailsModal from '@/components/board/TaskDetailsModal.vue'
@@ -477,6 +478,7 @@ import {
 } from 'lucide-vue-next'
 
 const projectsStore = useProjectsStore()
+const modalStore = useModalStore()
 
 const selectedTaskForModal = ref<Task | null>(null)
 const isDetailsModalOpen = ref(false)
@@ -511,7 +513,7 @@ async function confirmDeleteTask() {
     isDeleteModalOpen.value = false
     taskToDelete.value = null
   } catch (err: any) {
-    alert(`Erro ao excluir tarefa: ${err?.message || 'Falha na requisição'}`)
+    await modalStore.error('Erro ao Excluir Tarefa', err?.response?.data?.message || err?.message || 'Falha na requisição.')
   } finally {
     isDeleting.value = false
   }

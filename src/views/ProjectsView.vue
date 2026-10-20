@@ -351,11 +351,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectsStore } from '@/stores/projects'
+import { useModalStore } from '@/stores/modal'
 import type { Project } from '@/types'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { Plus, Github, Server, Layout, Bot, AlertCircle, Pencil, Trash2, Boxes, FolderGit2 } from 'lucide-vue-next'
 
 const projectsStore = useProjectsStore()
+const modalStore = useModalStore()
 const router = useRouter()
 
 const isModalOpen = ref(false)
@@ -427,14 +429,21 @@ function openEditModal(project: Project) {
 }
 
 async function confirmDelete(project: Project) {
-  const confirmed = window.confirm(`Tem certeza que deseja excluir o projeto "${project.name}" ([${project.prefix}])? Todas as tarefas associadas serão excluídas.`)
+  const confirmed = await modalStore.confirm({
+    title: 'Excluir Projeto',
+    message: `Tem certeza que deseja excluir o projeto "${project.name}" ([${project.prefix}])?\n\nTodas as tarefas associadas a este projeto serão permanentemente excluídas.`,
+    type: 'danger',
+    confirmText: 'SIM, EXCLUIR PROJETO',
+    cancelText: 'CANCELAR',
+  })
   if (!confirmed) return
 
   try {
     await projectsStore.deleteProject(project.id)
+    await modalStore.success('Projeto Excluído', `O projeto ${project.name} foi removido com sucesso.`)
   } catch (err: any) {
     console.error('Error deleting project:', err)
-    alert(err.response?.data?.message || 'Erro ao excluir projeto.')
+    await modalStore.error('Erro ao excluir projeto', err.response?.data?.message || err.message)
   }
 }
 

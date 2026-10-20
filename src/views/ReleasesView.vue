@@ -387,6 +387,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useProjectsStore } from '@/stores/projects'
+import { useModalStore } from '@/stores/modal'
 import { releasesApi, tasksApi } from '@/api/client'
 import type { Release, ReleaseStatus, Task } from '@/types'
 import {
@@ -400,6 +401,7 @@ import {
 } from 'lucide-vue-next'
 
 const projectsStore = useProjectsStore()
+const modalStore = useModalStore()
 
 const releases = ref<Release[]>([])
 const loading = ref(false)
@@ -484,55 +486,78 @@ async function submitRelease() {
     })
     isModalOpen.value = false
     await loadReleases()
-  } catch (err) {
+  } catch (err: any) {
     console.error('Erro ao salvar release:', err)
-    alert('Erro ao salvar release. Verifique os dados e tente novamente.')
+    await modalStore.error('Erro ao salvar release', err.response?.data?.message || 'Verifique os dados informados e tente novamente.')
   } finally {
     saving.value = false
   }
 }
 
 async function deploySandbox(rel: Release) {
-  if (!confirm(`Confirmar deploy da Release ${rel.version} no Sandbox? Todas as branches selecionadas serão mergeadas na branch 'release'.`)) {
-    return
-  }
+  const confirmed = await modalStore.confirm({
+    title: `Deploy no Sandbox - ${rel.version}`,
+    message: `Deseja disparar o deploy da Release ${rel.version} no Sandbox Homelab?\n\nTodas as branches das tarefas vinculadas serão mergeadas na branch 'release'.`,
+    type: 'warning',
+    confirmText: 'DISPARAR DEPLOY',
+    cancelText: 'CANCELAR',
+  })
+  if (!confirmed) return
+
   deployingId.value = rel.id
   try {
     const resp = await releasesApi.deploySandbox(rel.id)
-    alert(resp.message || 'Deploy no Sandbox disparado com sucesso!')
+    await modalStore.success('Deploy Disparado!', resp.message || 'Deploy no Sandbox disparado com sucesso!')
     await loadReleases()
   } catch (err: any) {
     console.error('Erro ao fazer deploy no sandbox:', err)
-    alert('Erro no deploy: ' + (err.response?.data?.error || err.message))
+    const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message
+    await modalStore.error('Falha no Deploy do Sandbox', errorMsg)
   } finally {
     deployingId.value = null
   }
 }
 
 async function deployProduction(rel: Release) {
-  if (!confirm(`ATENÇÃO: Deseja promover a Release ${rel.version} para PRODUÇÃO OFICIAL? Isso realizará o merge da branch 'release' na 'main' e disparará o deploy na Oracle Cloud + Cloudflare Pages!`)) {
-    return
-  }
+  const confirmed = await modalStore.confirm({
+    title: `PROMOÇÃO PARA PRODUÇÃO - ${rel.version}`,
+    message: `ATENÇÃO: Deseja promover a Release ${rel.version} para PRODUÇÃO OFICIAL?\n\nIsso realizará o merge da branch 'release' na 'main' e disparará o deploy automático na Oracle Cloud + Cloudflare Pages!`,
+    type: 'danger',
+    confirmText: 'SIM, PROMOVER PRODUÇÃO',
+    cancelText: 'CANCELAR',
+  })
+  if (!confirmed) return
+
   deployingId.value = rel.id
   try {
     const resp = await releasesApi.deployProduction(rel.id)
-    alert(resp.message || 'Promoção para Produção realizada com sucesso!')
+    await modalStore.success('Promoção Concluída!', resp.message || 'Promoção para Produção realizada com sucesso!')
     await loadReleases()
   } catch (err: any) {
     console.error('Erro ao promover para produção:', err)
-    alert('Erro ao promover para produção: ' + (err.response?.data?.error || err.message))
+    const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message
+    await modalStore.error('Falha na Promoção para Produção', errorMsg)
   } finally {
     deployingId.value = null
   }
 }
 
 async function deleteRelease(id: number) {
-  if (!confirm('Deseja excluir este rascunho de release? As tarefas permanecerão preservadas.')) return
+  const confirmed = await modalStore.confirm({
+    title: 'Excluir Release',
+    message: 'Deseja realmente excluir este rascunho de release? As tarefas associadas permanecerão preservadas.',
+    type: 'danger',
+    confirmText: 'EXCLUIR RASCUNHO',
+    cancelText: 'CANCELAR',
+  })
+  if (!confirmed) return
+
   try {
     await releasesApi.delete(id)
     await loadReleases()
-  } catch (err) {
+  } catch (err: any) {
     console.error('Erro ao excluir release:', err)
+    await modalStore.error('Erro ao excluir release', err.response?.data?.message || err.message)
   }
 }
 

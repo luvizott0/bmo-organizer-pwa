@@ -414,6 +414,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { useDockerStore } from '@/stores/docker'
+import { useModalStore } from '@/stores/modal'
 import type { DockerContainer } from '@/types'
 import {
   Boxes,
@@ -430,6 +431,7 @@ import {
 } from 'lucide-vue-next'
 
 const dockerStore = useDockerStore()
+const modalStore = useModalStore()
 const feedbackMsg = ref<string | null>(null)
 
 // Logs modal state
@@ -472,12 +474,19 @@ async function handleStart(container: DockerContainer) {
     feedbackMsg.value = `Container ${container.name} iniciado com sucesso!`
     setTimeout(() => (feedbackMsg.value = null), 4000)
   } else {
-    alert(`Erro ao iniciar ${container.name}: ${res.error}`)
+    await modalStore.error('Erro ao Iniciar Container', res.error || `Falha ao iniciar o container ${container.name}.`)
   }
 }
 
 async function handleStop(container: DockerContainer) {
-  if (!confirm(`Deseja realmente parar o container "${container.name}"?`)) {
+  const confirmed = await modalStore.confirm({
+    title: 'Parar Container',
+    message: `Deseja realmente parar o container "${container.name}"?\n\nOs serviços e endpoints que dependem dele ficarão temporariamente inacessíveis.`,
+    type: 'warning',
+    confirmText: 'PARAR CONTAINER',
+    cancelText: 'CANCELAR',
+  })
+  if (!confirmed) {
     return
   }
   const res = await dockerStore.stop(container.name)
@@ -485,7 +494,7 @@ async function handleStop(container: DockerContainer) {
     feedbackMsg.value = `Container ${container.name} parado com sucesso.`
     setTimeout(() => (feedbackMsg.value = null), 4000)
   } else {
-    alert(`Erro ao parar ${container.name}: ${res.error}`)
+    await modalStore.error('Erro ao Parar Container', res.error || `Falha ao parar o container ${container.name}.`)
   }
 }
 
@@ -495,7 +504,7 @@ async function handleRestart(container: DockerContainer) {
     feedbackMsg.value = `Container ${container.name} reiniciado com sucesso!`
     setTimeout(() => (feedbackMsg.value = null), 4000)
   } else {
-    alert(`Erro ao reiniciar ${container.name}: ${res.error}`)
+    await modalStore.error('Erro ao Reiniciar Container', res.error || `Falha ao reiniciar o container ${container.name}.`)
   }
 }
 
