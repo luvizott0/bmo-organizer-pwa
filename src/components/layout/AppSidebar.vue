@@ -43,13 +43,29 @@
 
         <RouterLink
           to="/projects"
-          class="flex items-center gap-2.5 px-3 py-2 rounded-xs font-mono text-xs font-bold uppercase transition-all duration-150 border"
+          class="flex items-center justify-between px-3 py-2 rounded-xs font-mono text-xs font-bold uppercase transition-all duration-150 border"
           :class="$route.path === '/projects'
             ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
             : 'bg-[#f8f6f1] text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5] hover:text-[#422d16]'"
         >
-          <FolderGit2 class="w-4 h-4" />
-          <span>Projetos</span>
+          <div class="flex items-center gap-2.5">
+            <FolderGit2 class="w-4 h-4" />
+            <span>Projetos (Git)</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/docker"
+          class="flex items-center justify-between px-3 py-2 rounded-xs font-mono text-xs font-bold uppercase transition-all duration-150 border"
+          :class="$route.path === '/docker'
+            ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
+            : 'bg-[#f8f6f1] text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5] hover:text-[#422d16]'"
+        >
+          <div class="flex items-center gap-2.5">
+            <Boxes class="w-4 h-4" />
+            <span>Containers Docker</span>
+          </div>
+          <span class="text-[9px] px-1 py-0.2 rounded-2xs bg-[#16a34a]/20 text-[#16a34a] border border-[#16a34a]/40 font-mono font-bold">BMO</span>
         </RouterLink>
 
         <RouterLink
@@ -61,17 +77,6 @@
         >
           <Rocket class="w-4 h-4" />
           <span>Releases & Deploy</span>
-        </RouterLink>
-
-        <RouterLink
-          to="/docker"
-          class="flex items-center gap-2.5 px-3 py-2 rounded-xs font-mono text-xs font-bold uppercase transition-all duration-150 border"
-          :class="$route.path === '/docker'
-            ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
-            : 'bg-[#f8f6f1] text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5] hover:text-[#422d16]'"
-        >
-          <Boxes class="w-4 h-4" />
-          <span>Containers Docker</span>
         </RouterLink>
       </nav>
     </div>

@@ -35,6 +35,31 @@
 
     <div class="flex-1 overflow-y-auto p-6">
       <div class="max-w-7xl mx-auto space-y-5">
+        <!-- Sub-navigation Tabs -->
+        <div class="flex items-center gap-2 border-b border-[#D8CDC5] pb-3">
+          <RouterLink
+            to="/projects"
+            class="px-3 py-1.5 rounded-xs font-mono text-xs font-bold uppercase transition-all border flex items-center gap-1.5"
+            :class="$route.path === '/projects'
+              ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
+              : 'bg-white text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5]'"
+          >
+            <FolderGit2 class="w-3.5 h-3.5" />
+            <span>Projetos & Repositórios</span>
+          </RouterLink>
+
+          <RouterLink
+            to="/docker"
+            class="px-3 py-1.5 rounded-xs font-mono text-xs font-bold uppercase transition-all border flex items-center gap-1.5"
+            :class="$route.path === '/docker'
+              ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
+              : 'bg-white text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5]'"
+          >
+            <Boxes class="w-3.5 h-3.5 text-[#16a34a]" />
+            <span>Containers Docker (Máquina)</span>
+          </RouterLink>
+        </div>
+
         <!-- Title & Subtitle -->
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
@@ -392,6 +417,7 @@ import { useDockerStore } from '@/stores/docker'
 import type { DockerContainer } from '@/types'
 import {
   Boxes,
+  FolderGit2,
   RefreshCw,
   Search,
   Layers,

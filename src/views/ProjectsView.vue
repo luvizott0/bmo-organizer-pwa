@@ -13,7 +13,32 @@
     </AppHeader>
 
     <div class="flex-1 overflow-y-auto p-6">
-      <div class="max-w-6xl mx-auto space-y-6">
+      <div class="max-w-6xl mx-auto space-y-5">
+        <!-- Sub-navigation Tabs -->
+        <div class="flex items-center gap-2 border-b border-[#D8CDC5] pb-3">
+          <RouterLink
+            to="/projects"
+            class="px-3 py-1.5 rounded-xs font-mono text-xs font-bold uppercase transition-all border flex items-center gap-1.5"
+            :class="$route.path === '/projects'
+              ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
+              : 'bg-white text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5]'"
+          >
+            <FolderGit2 class="w-3.5 h-3.5" />
+            <span>Projetos & Repositórios</span>
+          </RouterLink>
+
+          <RouterLink
+            to="/docker"
+            class="px-3 py-1.5 rounded-xs font-mono text-xs font-bold uppercase transition-all border flex items-center gap-1.5"
+            :class="$route.path === '/docker'
+              ? 'bg-[#a66130] text-white border-[#a66130] shadow-2xs'
+              : 'bg-white text-[#7d5628] border-[#D8CDC5] hover:bg-[#e8c9a5]'"
+          >
+            <Boxes class="w-3.5 h-3.5 text-[#16a34a]" />
+            <span>Containers Docker (Máquina)</span>
+          </RouterLink>
+        </div>
+
         <div>
           <h2 class="section-marker text-lg mb-1">PROJETOS & REPOSITÓRIOS</h2>
           <p class="text-xs text-[#847062] font-sans">
@@ -328,7 +353,7 @@ import { useRouter } from 'vue-router'
 import { useProjectsStore } from '@/stores/projects'
 import type { Project } from '@/types'
 import AppHeader from '@/components/layout/AppHeader.vue'
-import { Plus, Github, Server, Layout, Bot, AlertCircle, Pencil, Trash2 } from 'lucide-vue-next'
+import { Plus, Github, Server, Layout, Bot, AlertCircle, Pencil, Trash2, Boxes, FolderGit2 } from 'lucide-vue-next'
 
 const projectsStore = useProjectsStore()
 const router = useRouter()

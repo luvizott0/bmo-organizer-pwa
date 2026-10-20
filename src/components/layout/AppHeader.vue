@@ -65,6 +65,15 @@
         <span class="text-xs font-mono text-[#847062]">[Sincronizado BMO & WhatsApp]</span>
       </div>
 
+      <div v-else-if="$route.path === '/docker'" class="flex items-center gap-2">
+        <span class="section-marker text-sm uppercase">CONTAINERS & DOCKER</span>
+        <span class="text-xs font-mono text-[#16a34a] font-bold">[HOMELAB BMO]</span>
+      </div>
+
+      <div v-else-if="$route.path === '/releases'" class="flex items-center gap-2">
+        <span class="section-marker text-sm uppercase">RELEASES & DEPLOY</span>
+      </div>
+
       <div v-else class="flex items-center gap-2">
         <span class="section-marker text-sm uppercase">GERENCIADOR DE PROJETOS</span>
       </div>
