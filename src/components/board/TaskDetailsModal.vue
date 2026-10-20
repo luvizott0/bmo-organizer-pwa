@@ -34,6 +34,14 @@
               {{ statusLabel(task.status) }}
             </span>
 
+            <!-- Task Type Badge -->
+            <span
+              class="font-mono text-xs font-bold px-2 py-0.5 rounded-xs uppercase border"
+              :class="task.type === 'hotfix' ? 'bg-[#fef2f2] text-[#dc2626] border-[#fecaca] animate-pulse' : (task.type === 'bugfix' ? 'bg-[#fffbeb] text-[#b45309] border-[#fde68a]' : 'bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]')"
+            >
+              {{ task.type === 'hotfix' ? '🔥 HOTFIX (Merge na Main)' : (task.type === 'bugfix' ? '🐛 BUGFIX' : '✨ FEATURE') }}
+            </span>
+
             <!-- Priority Badge -->
             <span
               class="font-mono text-xs font-bold px-2 py-0.5 rounded-xs uppercase border"

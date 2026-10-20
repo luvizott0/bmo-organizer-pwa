@@ -1,5 +1,6 @@
 export type TaskStatus = 'backlog' | 'todo' | 'in_progress' | 'review' | 'reviewed' | 'done'
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
+export type TaskType = 'feature' | 'bugfix' | 'hotfix'
 export type AssigneeType = 'user' | 'ai'
 
 export interface Project {
@@ -37,6 +38,7 @@ export interface Task {
   task_number: number
   title: string
   description?: string | null
+  type?: TaskType
   status: TaskStatus
   priority: TaskPriority
   target_scope?: TargetScope

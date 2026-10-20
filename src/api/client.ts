@@ -54,6 +54,7 @@ export const tasksApi = {
     project_id: number
     title: string
     description?: string
+    type?: string
     priority?: string
     status?: string
     assignee_type?: string

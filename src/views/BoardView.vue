@@ -85,6 +85,14 @@
                   DEV
                 </span>
 
+                <!-- Task Type Badge (Hotfix, Bugfix, Feature) -->
+                <span
+                  class="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded-2xs border uppercase tracking-wider"
+                  :class="task.type === 'hotfix' ? 'bg-[#fef2f2] text-[#dc2626] border-[#fecaca] animate-pulse' : (task.type === 'bugfix' ? 'bg-[#fffbeb] text-[#b45309] border-[#fde68a]' : 'bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]')"
+                >
+                  {{ task.type === 'hotfix' ? '🔥 HOTFIX' : (task.type === 'bugfix' ? '🐛 FIX' : '✨ FEAT') }}
+                </span>
+
                 <!-- Target Scope Badge -->
                 <span
                   v-if="task.target_scope && task.target_scope !== 'auto'"
@@ -296,7 +304,19 @@
             ></textarea>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» TIPO DE TAREFA</label>
+              <select
+                v-model="newTask.type"
+                class="retro-input font-mono font-bold"
+              >
+                <option value="feature">✨ Feature (develop)</option>
+                <option value="bugfix">🐛 Bugfix (develop)</option>
+                <option value="hotfix">🔥 Hotfix (direto na main)</option>
+              </select>
+            </div>
+
             <div>
               <label class="block text-xs font-bold font-mono text-[#5f4120] mb-1">» PRIORIDADE</label>
               <select
@@ -447,6 +467,7 @@ const isSubmitting = ref(false)
 const newTask = ref({
   title: '',
   description: '',
+  type: 'feature' as const,
   priority: 'medium',
   assignee_type: 'user',
 })
@@ -496,6 +517,7 @@ async function handleCreateTask() {
       project_id: projectsStore.selectedProjectId,
       title: newTask.value.title,
       description: newTask.value.description,
+      type: newTask.value.type,
       priority: newTask.value.priority,
       assignee_type: newTask.value.assignee_type,
       status: 'todo',
@@ -504,6 +526,7 @@ async function handleCreateTask() {
     newTask.value = {
       title: '',
       description: '',
+      type: 'feature',
       priority: 'medium',
       assignee_type: 'user',
     }
