@@ -1,28 +1,63 @@
 <template>
   <header class="h-16 border-b-2 border-[#D8CDC5] bg-[#fdf8f3] px-6 flex items-center justify-between select-none shrink-0 shadow-2xs">
     <div class="flex items-center gap-3">
-      <div v-if="projectsStore.selectedProject && $route.path === '/board'" class="flex items-center gap-2">
+      <div v-if="$route.path === '/board'" class="flex items-center gap-2">
         <span class="section-marker text-sm uppercase">PROJETO</span>
+        <div class="relative flex items-center">
+          <select
+            v-model="projectsStore.selectedProjectId"
+            class="retro-input text-xs font-mono font-bold pl-2.5 pr-8 py-1 bg-white text-[#422d16] border border-[#D8CDC5] rounded-xs cursor-pointer focus:outline-none focus:border-[#a66130]"
+            :style="{ borderColor: projectsStore.selectedProject?.color || '#D8CDC5' }"
+          >
+            <option
+              v-for="p in projectsStore.projects"
+              :key="p.id"
+              :value="p.id"
+            >
+              [{{ p.prefix }}] {{ p.name }} ({{ p.tasks_count ?? 0 }})
+            </option>
+          </select>
+        </div>
+
         <span
+          v-if="projectsStore.selectedProject"
           class="w-2.5 h-2.5 rounded-xs shrink-0"
           :style="{ backgroundColor: projectsStore.selectedProject.color || '#a66130' }"
+          :title="projectsStore.selectedProject.name"
         ></span>
-        <span class="font-mono text-xs font-bold px-1.5 py-0.5 rounded-xs bg-[#ffffff] text-[#a66130] border border-[#D8CDC5]">
-          {{ projectsStore.selectedProject.prefix }}
-        </span>
-        <h1 class="text-sm font-bold font-mono text-[#422d16]">
-          {{ projectsStore.selectedProject.name }}
-        </h1>
-        <a
-          v-if="projectsStore.selectedProject.github_repo"
-          :href="githubUrl"
-          target="_blank"
-          class="text-xs text-[#847062] hover:text-[#a66130] flex items-center gap-1 transition-colors ml-2 bg-[#ffffff] px-2 py-0.5 rounded-xs border border-[#D8CDC5] font-mono"
-        >
-          <Github class="w-3.5 h-3.5" />
-          <span>{{ projectsStore.selectedProject.github_repo }}</span>
-          <ExternalLink class="w-3 h-3 opacity-60" />
-        </a>
+
+        <!-- Repo Links -->
+        <div v-if="projectsStore.selectedProject" class="hidden md:flex items-center gap-1.5 ml-1">
+          <a
+            v-if="projectsStore.selectedProject.backend_repo"
+            :href="`https://github.com/${projectsStore.selectedProject.backend_repo.replace('https://github.com/', '')}`"
+            target="_blank"
+            class="text-[11px] text-[#2563eb] hover:underline flex items-center gap-1 bg-[#eff6ff] px-1.5 py-0.5 rounded-xs border border-[#bfdbfe] font-mono"
+            title="Repositório Backend (API)"
+          >
+            <Server class="w-3 h-3 text-[#2563eb]" />
+            <span>API</span>
+          </a>
+          <a
+            v-if="projectsStore.selectedProject.frontend_repo"
+            :href="`https://github.com/${projectsStore.selectedProject.frontend_repo.replace('https://github.com/', '')}`"
+            target="_blank"
+            class="text-[11px] text-[#16a34a] hover:underline flex items-center gap-1 bg-[#f0fdf4] px-1.5 py-0.5 rounded-xs border border-[#bbf7d0] font-mono"
+            title="Repositório Frontend (PWA)"
+          >
+            <Layout class="w-3 h-3 text-[#16a34a]" />
+            <span>PWA</span>
+          </a>
+          <a
+            v-if="!projectsStore.selectedProject.backend_repo && !projectsStore.selectedProject.frontend_repo && projectsStore.selectedProject.github_repo"
+            :href="githubUrl"
+            target="_blank"
+            class="text-[11px] text-[#847062] hover:text-[#a66130] flex items-center gap-1 bg-[#ffffff] px-2 py-0.5 rounded-xs border border-[#D8CDC5] font-mono"
+          >
+            <Github class="w-3 h-3" />
+            <span class="truncate max-w-[140px]">{{ projectsStore.selectedProject.github_repo }}</span>
+          </a>
+        </div>
       </div>
 
       <div v-else-if="$route.path === '/calendar'" class="flex items-center gap-2">
@@ -137,7 +172,7 @@ import { useCalendarStore } from '@/stores/calendar'
 import { useAuthStore } from '@/stores/auth'
 import { systemApi } from '@/api/client'
 import type { QuotaStatus } from '@/types'
-import { Github, ExternalLink, RefreshCw, LogOut, Zap, Calendar } from 'lucide-vue-next'
+import { Github, ExternalLink, RefreshCw, LogOut, Zap, Calendar, Server, Layout } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()

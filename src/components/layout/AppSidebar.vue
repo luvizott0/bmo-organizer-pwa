@@ -63,44 +63,6 @@
           <span>Releases & Deploy</span>
         </RouterLink>
       </nav>
-
-      <!-- Projects Section -->
-      <div class="pt-3 border-t border-[#D8CDC5]">
-        <div class="px-1 pb-2 flex items-center justify-between section-marker text-xs">
-          <span>PROJETOS</span>
-          <span class="text-[11px] font-mono text-[#847062]">[{{ projectsStore.projects.length }}]</span>
-        </div>
-
-        <div class="space-y-1.5 max-h-[40vh] overflow-y-auto pr-0.5">
-          <button
-            v-for="project in projectsStore.projects"
-            :key="project.id"
-            @click="selectProject(project.id)"
-            class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xs text-xs text-left transition-all duration-150 cursor-pointer border"
-            :class="projectsStore.selectedProjectId === project.id
-              ? 'bg-[#ffffff] text-[#422d16] font-bold border-[#a66130] shadow-xs'
-              : 'bg-[#f8f6f1] text-[#5f4120] border-[#D8CDC5] hover:bg-[#e8c9a5]'"
-          >
-            <div class="flex items-center gap-2 truncate">
-              <span
-                class="w-2 h-2 rounded-xs shrink-0"
-                :style="{ backgroundColor: project.color || '#a66130' }"
-              ></span>
-              <span class="font-mono text-[10px] font-bold px-1 py-0.2 rounded-xs bg-[#f8f6f1] text-[#a66130] border border-[#D8CDC5]">
-                {{ project.prefix }}
-              </span>
-              <span class="truncate font-sans font-medium text-xs">{{ project.name }}</span>
-            </div>
-            <span class="text-[10px] font-mono text-[#847062]">
-              {{ project.tasks_count ?? 0 }}
-            </span>
-          </button>
-
-          <div v-if="projectsStore.projects.length === 0" class="py-4 px-1 text-center text-xs text-[#847062] font-mono italic">
-            [nenhum projeto]
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Homelab Footer -->
@@ -117,17 +79,5 @@
 </template>
 
 <script setup lang="ts">
-import { useProjectsStore } from '@/stores/projects'
-import { useRouter } from 'vue-router'
 import { KanbanSquare, CalendarDays, FolderGit2, Rocket } from 'lucide-vue-next'
-
-const projectsStore = useProjectsStore()
-const router = useRouter()
-
-function selectProject(id: number) {
-  projectsStore.selectedProjectId = id
-  if (router.currentRoute.value.path !== '/board') {
-    router.push('/board')
-  }
-}
 </script>

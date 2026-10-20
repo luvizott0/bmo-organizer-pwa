@@ -63,68 +63,70 @@
             class="p-3 bg-white border-2 border-[#D8CDC5] rounded-xs shadow-xs hover:border-[#a66130] hover:shadow-sm transition-all duration-150 cursor-pointer"
 
           >
-            <!-- Card Header: Code & Badges -->
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-1.5">
-                <span class="font-mono text-xs font-bold text-[#a66130] px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5]">
-                  {{ task.task_code }}
-                </span>
+            <!-- Line 1: Task Code, Edit & Delete Buttons -->
+            <div class="flex items-center justify-between pb-1.5 border-b border-[#D8CDC5]/40 mb-1.5">
+              <span class="font-mono text-xs font-bold text-[#a66130] px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5]">
+                {{ task.task_code }}
+              </span>
+
+              <div class="flex items-center gap-1">
                 <button
                   @click.stop="openTaskDetails(task, true)"
-                  class="text-[#847062] hover:text-[#a66130] p-0.5 rounded-xs hover:bg-[#f8f6f1] transition-colors cursor-pointer"
+                  class="text-[#847062] hover:text-[#a66130] p-1 rounded-xs hover:bg-[#f8f6f1] transition-colors cursor-pointer"
                   title="Editar tarefa"
                 >
-                  <Pencil class="w-3 h-3" />
+                  <Pencil class="w-3.5 h-3.5" />
                 </button>
                 <button
                   @click.stop="promptDeleteTask(task)"
-                  class="text-[#847062] hover:text-[#dc2626] p-0.5 rounded-xs hover:bg-[#fef2f2] transition-colors cursor-pointer"
+                  class="text-[#847062] hover:text-[#dc2626] p-1 rounded-xs hover:bg-[#fef2f2] transition-colors cursor-pointer"
                   title="Excluir tarefa"
                 >
-                  <Trash2 class="w-3 h-3" />
+                  <Trash2 class="w-3.5 h-3.5" />
                 </button>
               </div>
+            </div>
 
-              <div class="flex items-center gap-1.5">
-                <span
-                  v-if="task.assignee_type === 'ai'"
-                  class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] text-[#7d5628] border border-[#D8CDC5] flex items-center gap-1"
-                  title="Desenvolvido pelo Agente de IA"
-                >
-                  <Bot class="w-3 h-3 text-[#a66130]" />
-                  IA
-                </span>
-                <span
-                  v-else
-                  class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-xs bg-[#f8f6f1] text-[#847062] border border-[#D8CDC5]"
-                >
-                  DEV
-                </span>
+            <!-- Line 2: Badges (Assignee, Type, Target Scope, Priority) -->
+            <div class="flex flex-wrap items-center gap-1.5 mb-2">
+              <span
+                v-if="task.assignee_type === 'ai'"
+                class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-xs bg-[#fdf8f3] text-[#7d5628] border border-[#D8CDC5] flex items-center gap-1"
+                title="Desenvolvido pelo Agente de IA"
+              >
+                <Bot class="w-3 h-3 text-[#a66130]" />
+                IA
+              </span>
+              <span
+                v-else
+                class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-xs bg-[#f8f6f1] text-[#847062] border border-[#D8CDC5]"
+              >
+                DEV
+              </span>
 
-                <!-- Task Type Badge (Hotfix, Bugfix, Feature) -->
-                <span
-                  class="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded-2xs border uppercase tracking-wider"
-                  :class="task.type === 'hotfix' ? 'bg-[#fef2f2] text-[#dc2626] border-[#fecaca] animate-pulse' : (task.type === 'bugfix' ? 'bg-[#fffbeb] text-[#b45309] border-[#fde68a]' : 'bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]')"
-                >
-                  {{ task.type === 'hotfix' ? '🔥 HOTFIX' : (task.type === 'bugfix' ? '🐛 FIX' : '✨ FEAT') }}
-                </span>
+              <!-- Task Type Badge (Hotfix, Bugfix, Feature) -->
+              <span
+                class="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded-2xs border uppercase tracking-wider"
+                :class="task.type === 'hotfix' ? 'bg-[#fef2f2] text-[#dc2626] border-[#fecaca] animate-pulse' : (task.type === 'bugfix' ? 'bg-[#fffbeb] text-[#b45309] border-[#fde68a]' : 'bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]')"
+              >
+                {{ task.type === 'hotfix' ? '🔥 HOTFIX' : (task.type === 'bugfix' ? '🐛 FIX' : '✨ FEAT') }}
+              </span>
 
-                <!-- Target Scope Badge -->
-                <span
-                  v-if="task.target_scope && task.target_scope !== 'auto'"
-                  class="font-mono text-[9px] font-bold px-1 py-0.5 rounded-2xs border uppercase"
-                  :class="task.target_scope === 'backend' ? 'bg-[#eff6ff] text-[#1d4ed8] border-[#bfdbfe]' : (task.target_scope === 'frontend' ? 'bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]' : 'bg-[#faf5ff] text-[#7e22ce] border-[#e9d5ff]')"
-                >
-                  {{ task.target_scope === 'fullstack' ? 'FULL' : (task.target_scope === 'backend' ? 'API' : 'UI') }}
-                </span>
+              <!-- Target Scope Badge -->
+              <span
+                v-if="task.target_scope && task.target_scope !== 'auto'"
+                class="font-mono text-[9px] font-bold px-1 py-0.5 rounded-2xs border uppercase"
+                :class="task.target_scope === 'backend' ? 'bg-[#eff6ff] text-[#1d4ed8] border-[#bfdbfe]' : (task.target_scope === 'frontend' ? 'bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]' : 'bg-[#faf5ff] text-[#7e22ce] border-[#e9d5ff]')"
+              >
+                {{ task.target_scope === 'fullstack' ? 'FULL' : (task.target_scope === 'backend' ? 'API' : 'UI') }}
+              </span>
 
-                <span
-                  class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-xs uppercase border"
-                  :class="priorityBadgeClass(task.priority)"
-                >
-                  {{ task.priority }}
-                </span>
-              </div>
+              <span
+                class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-xs uppercase border ml-auto"
+                :class="priorityBadgeClass(task.priority)"
+              >
+                {{ task.priority }}
+              </span>
             </div>
 
             <!-- Title -->
