@@ -30,6 +30,17 @@ export interface Project {
 
 export type TargetScope = 'auto' | 'backend' | 'frontend' | 'fullstack'
 
+export interface TaskComment {
+  id: number
+  task_id: number
+  user_id?: number | null
+  author_name: string
+  author_type: 'user' | 'ai' | string
+  content: string
+  created_at?: string
+  updated_at?: string
+}
+
 export interface Task {
   id: number
   workspace_id: number
@@ -52,6 +63,7 @@ export interface Task {
   release_id?: number | null
   preview_url?: string | null
   project?: Project
+  comments?: TaskComment[]
   created_at?: string
   updated_at?: string
 }

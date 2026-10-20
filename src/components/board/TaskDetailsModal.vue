@@ -274,19 +274,38 @@
             </span>
           </div>
 
-          <div class="retro-card p-3 bg-[#1e1e1e] text-[#d4d4d4] font-mono text-[11px] rounded-xs border-2 border-[#333333] shadow-inner max-h-56 overflow-y-auto space-y-1.5">
-            <div v-if="aiSummary" class="text-[#a6e22e] font-bold border-b border-[#333333] pb-1.5 mb-1.5">
-              » {{ aiSummary }}
+          <!-- Terminal Window Shell -->
+          <div class="rounded-xs border-2 border-[#27272a] overflow-hidden shadow-inner" style="background-color: #0c0d10 !important;">
+            <!-- Terminal Header Bar -->
+            <div class="px-3 py-1.5 bg-[#181920] border-b border-[#27272a] flex items-center justify-between text-[10px] font-mono select-none">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#ef4444]"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#eab308]"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#22c55e]"></span>
+                <span class="ml-1.5 text-zinc-300 font-bold">bmo-ai-agent@sandbox:~</span>
+              </div>
+              <span class="text-zinc-500 font-mono text-[9px]">{{ task.task_code }}</span>
             </div>
-            <div class="space-y-1">
-              <template v-if="aiLogs.length > 0">
-                <div v-for="(log, i) in aiLogs" :key="i" class="leading-relaxed">
-                  <span class="text-[#66d9ef] select-none">➜ </span>
-                  <span class="text-[#f8f8f2]">{{ log }}</span>
+
+            <!-- Terminal Output Area -->
+            <div
+              ref="terminalScrollRef"
+              class="p-3 text-zinc-100 font-mono text-[11px] max-h-56 overflow-y-auto space-y-1.5 leading-relaxed select-text"
+              style="background-color: #0c0d10 !important;"
+            >
+              <div v-if="aiSummary" class="text-emerald-400 font-bold border-b border-zinc-800 pb-1.5 mb-1.5">
+                » {{ aiSummary }}
+              </div>
+              <div class="space-y-1">
+                <template v-if="aiLogs.length > 0">
+                  <div v-for="(log, i) in aiLogs" :key="i" class="leading-relaxed">
+                    <span class="text-cyan-400 font-bold select-none">➜ </span>
+                    <span class="text-zinc-100">{{ log }}</span>
+                  </div>
+                </template>
+                <div v-else class="text-zinc-500 italic">
+                  Nenhum log registrado ainda. A execução começará assim que a tarefa entrar em progresso.
                 </div>
-              </template>
-              <div v-else class="text-[#78716c] italic">
-                Nenhum log registrado ainda. A execução começará assim que a tarefa entrar em progresso.
               </div>
             </div>
           </div>
@@ -314,6 +333,90 @@
             <span>ABRIR PREVIEW</span>
             <ExternalLink class="w-3.5 h-3.5" />
           </a>
+        </div>
+
+        <!-- Comments & Review Feedback Section -->
+        <div class="space-y-3 pt-3 border-t-2 border-[#D8CDC5]">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono font-bold text-[#422d16] uppercase tracking-wider flex items-center gap-1.5">
+              <MessageSquare class="w-4 h-4 text-[#a66130]" />
+              Comentários & Feedback de Teste
+              <span class="text-[10px] px-1.5 py-0.2 rounded-2xs bg-[#f8f6f1] border border-[#D8CDC5] text-[#847062] font-mono">
+                {{ taskComments.length }}
+              </span>
+            </span>
+          </div>
+
+          <!-- Explanation Banner on AI iteration -->
+          <div class="p-2.5 rounded-xs bg-[#fefce8] border border-[#fef08a] text-[11px] font-sans text-[#854d0e] flex items-start gap-2">
+            <Info class="w-4 h-4 text-[#ca8a04] shrink-0 mt-0.5" />
+            <div class="leading-relaxed">
+              <strong>Como corrigir problemas com IA:</strong> Encontrou algum bug ou erro no teste? Adicione um comentário detalhando o problema e clique no botão <span class="font-mono font-bold text-[#b45309]">[RETORNAR P/ EM PROGRESSO]</span>. O Agente de IA analisará as alterações já feitas na branch e os comentários para corrigir.
+            </div>
+          </div>
+
+          <!-- Comments Feed -->
+          <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <div v-if="loadingComments" class="text-xs font-mono text-[#847062] py-3 text-center animate-pulse">
+              Carregando comentários...
+            </div>
+            <div v-else-if="taskComments.length === 0" class="p-4 text-center rounded-xs bg-[#f8f6f1] border border-[#D8CDC5] text-xs font-mono text-[#847062] italic">
+              Nenhum comentário adicionado ainda.
+            </div>
+            <div
+              v-else
+              v-for="comment in taskComments"
+              :key="comment.id"
+              class="p-3 rounded-xs border text-xs space-y-1.5 shadow-2xs"
+              :class="comment.author_type === 'ai' ? 'bg-[#f0fdf4] border-[#bbf7d0]' : 'bg-white border-[#D8CDC5]'"
+            >
+              <div class="flex items-center justify-between text-[11px] font-mono">
+                <div class="flex items-center gap-1.5 font-bold" :class="comment.author_type === 'ai' ? 'text-[#15803d]' : 'text-[#422d16]'">
+                  <Bot v-if="comment.author_type === 'ai'" class="w-3.5 h-3.5 text-[#16a34a]" />
+                  <User v-else class="w-3.5 h-3.5 text-[#a66130]" />
+                  <span>{{ comment.author_name }}</span>
+                  <span v-if="comment.author_type === 'ai'" class="text-[9px] px-1 py-0.2 bg-[#16a34a]/15 rounded-2xs text-[#16a34a]">IA</span>
+                </div>
+                <div class="flex items-center gap-2 text-[#847062] text-[10px]">
+                  <span>{{ formatCommentDate(comment.created_at) }}</span>
+                  <button
+                    @click="deleteComment(comment.id)"
+                    class="hover:text-red-600 transition-colors cursor-pointer"
+                    title="Excluir comentário"
+                  >
+                    <Trash2 class="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+              <p class="text-xs text-[#333333] font-sans whitespace-pre-wrap leading-relaxed">
+                {{ comment.content }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Add Comment Box -->
+          <div class="space-y-2 pt-1">
+            <textarea
+              v-model="newCommentText"
+              rows="2"
+              placeholder="Descreva o problema encontrado nos testes ou o que precisa ser ajustado..."
+              class="retro-input w-full text-xs font-sans p-2 bg-[#fdf8f3] border border-[#D8CDC5] rounded-xs focus:outline-none focus:border-[#a66130]"
+              :disabled="submittingComment"
+              @keydown.ctrl.enter="submitComment"
+            ></textarea>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-[#847062]">Pressione Ctrl+Enter para enviar</span>
+              <button
+                type="button"
+                @click="submitComment"
+                :disabled="!newCommentText.trim() || submittingComment"
+                class="retro-button text-xs py-1 px-3 disabled:opacity-50"
+              >
+                <Send class="w-3 h-3 mr-1" />
+                <span>{{ submittingComment ? 'ENVIANDO...' : 'ENVIAR COMENTÁRIO' }}</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -349,6 +452,17 @@
 
         <!-- Dynamic Action Buttons according to status -->
         <div class="flex items-center gap-2">
+          <!-- Return to In Progress (available if in review, reviewed or done) -->
+          <button
+            v-if="['review', 'reviewed', 'done'].includes(task.status)"
+            @click="handleStatusChange('in_progress')"
+            class="retro-button-secondary py-1.5 px-3 border border-[#D8CDC5] text-[#b45309] hover:bg-[#fef3c7] flex items-center gap-1.5 cursor-pointer font-bold"
+            title="Retornar para Em Progresso para que a IA execute as correções da tarefa"
+          >
+            <RotateCcw class="w-3.5 h-3.5 text-[#b45309]" />
+            <span>RETORNAR P/ EM PROGRESSO</span>
+          </button>
+
           <!-- When in Todo -->
           <button
             v-if="task.status === 'todo'"
@@ -393,9 +507,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import type { Task, TaskStatus, TaskType, TaskPriority, TargetScope, AssigneeType } from '@/types'
+import { ref, computed, watch, nextTick } from 'vue'
+import type { Task, TaskStatus, TaskType, TaskPriority, TargetScope, AssigneeType, TaskComment } from '@/types'
 import { useProjectsStore } from '@/stores/projects'
+import { taskCommentsApi } from '@/api/client'
 import {
   Bot,
   Github,
@@ -409,6 +524,11 @@ import {
   Play,
   Pencil,
   Trash2,
+  MessageSquare,
+  Send,
+  User,
+  RotateCcw,
+  Info,
 } from 'lucide-vue-next'
 
 const props = defineProps<{
@@ -429,6 +549,12 @@ const copied = ref(false)
 const isEditing = ref(false)
 const saving = ref(false)
 
+const terminalScrollRef = ref<HTMLElement | null>(null)
+const taskComments = ref<TaskComment[]>([])
+const newCommentText = ref('')
+const loadingComments = ref(false)
+const submittingComment = ref(false)
+
 const editForm = ref({
   title: '',
   description: '',
@@ -446,6 +572,21 @@ watch(
       startEditing()
     } else {
       isEditing.value = false
+    }
+
+    if (newTask) {
+      if (newTask.comments && Array.isArray(newTask.comments)) {
+        taskComments.value = [...newTask.comments]
+      } else {
+        loadComments(newTask.id)
+      }
+      nextTick(() => {
+        if (terminalScrollRef.value) {
+          terminalScrollRef.value.scrollTop = terminalScrollRef.value.scrollHeight
+        }
+      })
+    } else {
+      taskComments.value = []
     }
   },
   { immediate: true }
@@ -594,6 +735,68 @@ function priorityBadgeClass(priority: string) {
       return 'bg-[#f8f6f1] text-[#847062] border-[#D8CDC5]'
     default:
       return 'bg-[#eff6ff] text-[#1d4ed8] border-[#bfdbfe]'
+  }
+}
+
+watch(aiLogs, () => {
+  nextTick(() => {
+    if (terminalScrollRef.value) {
+      terminalScrollRef.value.scrollTop = terminalScrollRef.value.scrollHeight
+    }
+  })
+})
+
+async function loadComments(taskId: number) {
+  try {
+    loadingComments.value = true
+    const comments = await taskCommentsApi.list(taskId)
+    taskComments.value = comments
+  } catch (err) {
+    console.error('Erro ao carregar comentários:', err)
+  } finally {
+    loadingComments.value = false
+  }
+}
+
+async function submitComment() {
+  if (!props.task || !newCommentText.value.trim() || submittingComment.value) return
+
+  try {
+    submittingComment.value = true
+    const comment = await taskCommentsApi.create(props.task.id, newCommentText.value.trim())
+    taskComments.value.push(comment)
+    newCommentText.value = ''
+  } catch (err: any) {
+    alert(`Erro ao adicionar comentário: ${err?.response?.data?.message || err?.message || 'Falha na requisição'}`)
+  } finally {
+    submittingComment.value = false
+  }
+}
+
+async function deleteComment(commentId: number) {
+  if (!props.task) return
+  if (!confirm('Deseja realmente remover este comentário?')) return
+
+  try {
+    await taskCommentsApi.delete(props.task.id, commentId)
+    taskComments.value = taskComments.value.filter((c) => c.id !== commentId)
+  } catch (err: any) {
+    alert(`Erro ao excluir comentário: ${err?.response?.data?.message || err?.message || 'Falha na requisição'}`)
+  }
+}
+
+function formatCommentDate(dateStr?: string) {
+  if (!dateStr) return ''
+  try {
+    const d = new Date(dateStr)
+    return d.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch {
+    return dateStr
   }
 }
 </script>

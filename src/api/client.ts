@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { CalendarEvent, Project, Release, Reminder, Task, TaskStatus, DockerContainer, DockerContainersResponse } from '@/types'
+import type { CalendarEvent, Project, Release, Reminder, Task, TaskComment, TaskStatus, DockerContainer, DockerContainersResponse } from '@/types'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -65,6 +65,15 @@ export const tasksApi = {
   updateStatus: async (id: number, status: TaskStatus, order?: number) =>
     (await api.patch<{ data: Task }>(`/tasks/${id}/status`, { status, order })).data.data,
   delete: async (id: number) => (await api.delete(`/tasks/${id}`)).data,
+}
+
+export const taskCommentsApi = {
+  list: async (taskId: number) =>
+    (await api.get<{ data: TaskComment[] }>(`/tasks/${taskId}/comments`)).data.data,
+  create: async (taskId: number, content: string) =>
+    (await api.post<{ data: TaskComment }>(`/tasks/${taskId}/comments`, { content })).data.data,
+  delete: async (taskId: number, commentId: number) =>
+    (await api.delete(`/tasks/${taskId}/comments/${commentId}`)).data,
 }
 
 export const calendarApi = {
