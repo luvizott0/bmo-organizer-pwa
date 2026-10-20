@@ -641,4 +641,35 @@ async function handleCreateTask() {
     isSubmitting.value = false
   }
 }
+
+let boardPollTimer: ReturnType<typeof setInterval> | null = null
+
+function checkBoardPolling() {
+  const hasInProgress = projectsStore.tasks.some((t) => t.status === 'in_progress')
+  if (hasInProgress && !boardPollTimer) {
+    boardPollTimer = setInterval(async () => {
+      if (projectsStore.selectedProjectId) {
+        await projectsStore.loadTasks()
+      }
+    }, 4000)
+  } else if (!hasInProgress && boardPollTimer) {
+    clearInterval(boardPollTimer)
+    boardPollTimer = null
+  }
+}
+
+watch(
+  () => projectsStore.tasks.map((t) => t.status),
+  () => {
+    checkBoardPolling()
+  },
+  { immediate: true }
+)
+
+onUnmounted(() => {
+  if (boardPollTimer) {
+    clearInterval(boardPollTimer)
+    boardPollTimer = null
+  }
+})
 </script>

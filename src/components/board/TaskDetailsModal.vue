@@ -507,10 +507,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import type { Task, TaskStatus, TaskType, TaskPriority, TargetScope, AssigneeType, TaskComment } from '@/types'
 import { useProjectsStore } from '@/stores/projects'
-import { taskCommentsApi } from '@/api/client'
+import { taskCommentsApi, tasksApi } from '@/api/client'
 import {
   Bot,
   Github,
@@ -588,9 +588,53 @@ watch(
     } else {
       taskComments.value = []
     }
+
+    if (props.isOpen && newTask && newTask.status === 'in_progress') {
+      startPolling(newTask.id)
+    } else {
+      stopPolling()
+    }
   },
   { immediate: true }
 )
+
+let pollTimer: ReturnType<typeof setInterval> | null = null
+
+function stopPolling() {
+  if (pollTimer) {
+    clearInterval(pollTimer)
+    pollTimer = null
+  }
+}
+
+function startPolling(taskId: number) {
+  stopPolling()
+  pollTimer = setInterval(async () => {
+    try {
+      const updated = await tasksApi.get(taskId)
+      if (props.task && props.task.id === taskId) {
+        Object.assign(props.task, updated)
+        if (updated.comments && Array.isArray(updated.comments)) {
+          taskComments.value = [...updated.comments]
+        }
+        if (updated.status !== 'in_progress') {
+          stopPolling()
+        }
+        nextTick(() => {
+          if (terminalScrollRef.value) {
+            terminalScrollRef.value.scrollTop = terminalScrollRef.value.scrollHeight
+          }
+        })
+      }
+    } catch {
+      // ignore
+    }
+  }, 2500)
+}
+
+onUnmounted(() => {
+  stopPolling()
+})
 
 function startEditing() {
   if (!props.task) return

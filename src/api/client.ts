@@ -49,6 +49,8 @@ export const projectsApi = {
 export const tasksApi = {
   list: async (params?: { project_id?: number; status?: string }) =>
     (await api.get<{ data: Task[] }>('/tasks', { params })).data.data,
+  get: async (id: number) =>
+    (await api.get<{ data: Task }>(`/tasks/${id}`)).data.data,
   inProgress: async () => (await api.get<{ data: Task[] }>('/tasks/in-progress')).data.data,
   create: async (payload: {
     project_id: number
