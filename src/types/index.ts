@@ -134,3 +134,29 @@ export interface QuotaStatus {
   models?: Record<string, { remaining_percentage: number; reset_time: string }>
 }
 
+export interface DockerContainer {
+  id: string
+  short_id: string
+  name: string
+  project: string
+  service: string
+  image: string
+  state: string
+  status: string
+  is_running: boolean
+  health?: string | null
+  ports: string[]
+  created: number
+  created_at?: string | null
+  last_updated?: string | null
+}
+
+export interface DockerContainersResponse {
+  data: DockerContainer[]
+  meta: {
+    total: number
+    running: number
+    stopped: number
+  }
+}
+

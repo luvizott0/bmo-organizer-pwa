@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { CalendarEvent, Project, Release, Reminder, Task, TaskStatus } from '@/types'
+import type { CalendarEvent, Project, Release, Reminder, Task, TaskStatus, DockerContainer, DockerContainersResponse } from '@/types'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -114,3 +114,13 @@ export const releasesApi = {
 export const systemApi = {
   getQuota: async () => (await api.get<import('@/types').QuotaStatus>('/system/quota')).data,
 }
+
+export const dockerApi = {
+  list: async () => (await api.get<DockerContainersResponse>('/docker/containers')).data,
+  start: async (idOrName: string) => (await api.post<{ message: string }>(`/docker/containers/${encodeURIComponent(idOrName)}/start`)).data,
+  stop: async (idOrName: string) => (await api.post<{ message: string }>(`/docker/containers/${encodeURIComponent(idOrName)}/stop`)).data,
+  restart: async (idOrName: string) => (await api.post<{ message: string }>(`/docker/containers/${encodeURIComponent(idOrName)}/restart`)).data,
+  logs: async (idOrName: string, tail: number = 100) =>
+    (await api.get<{ container: string; tail: number; logs: string }>(`/docker/containers/${encodeURIComponent(idOrName)}/logs`, { params: { tail } })).data,
+}
+

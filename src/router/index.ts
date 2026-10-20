@@ -41,6 +41,12 @@ const router = createRouter({
       component: () => import('@/views/ReleasesView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/docker',
+      name: 'docker',
+      component: () => import('@/views/DockerView.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 
