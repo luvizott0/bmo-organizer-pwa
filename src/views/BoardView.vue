@@ -351,7 +351,7 @@
           <!-- Preview Pill -->
           <div class="p-2.5 rounded-xs bg-[#fdf8f3] border border-[#D8CDC5] text-[11px] text-[#5f4120] space-y-1 font-mono">
             <div>ID Sequencial: <span class="text-[#a66130] font-bold">{{ projectsStore.selectedProject?.prefix }}-{{ String((projectsStore.selectedProject?.last_task_number ?? 0) + 1).padStart(3, '0') }}</span></div>
-            <div>Branch Automática: <span class="text-[#5f4120]">feat/{{ projectsStore.selectedProject?.prefix }}-...</span></div>
+            <div>Branch Automática: <span class="text-[#5f4120] font-bold">feat/{{ projectsStore.selectedProject?.prefix }}-{{ String((projectsStore.selectedProject?.last_task_number ?? 0) + 1).padStart(3, '0') }}</span></div>
           </div>
 
           <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-[#D8CDC5]">
